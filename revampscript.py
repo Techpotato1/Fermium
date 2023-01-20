@@ -52,8 +52,7 @@ def getweather():
     BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
     # City Name
     CITY = weatherlocation
-    # API key API_KEY = "Your API Key"
-    # upadting the URL
+    # updating the URL
     URL = BASE_URL + "q=" + CITY + "&appid=" + "e91d81d114cb8742d01f3f74cda18d27"
     # HTTP request
     response = requests.get(URL)
@@ -86,9 +85,7 @@ def getweather():
                          color=Fore.RED, brightness=Style.DIM)
         print("Try checking the city name")
 
-# get the aproximate location of the user from their IP address
-
-
+# get the approximate location of the user from their IP address
 def getcity(ip_address):
     # URL to send the request to
     request_url = 'https://geolocation-db.com/jsonp/' + ip_address
@@ -103,49 +100,7 @@ def getcity(ip_address):
     postal = result['postal']
     return postal
 
-# Generator function
-
-
-def calcPi(limit):
-    """
-    Prints out the digits of PI
-    until it reaches the given limit
-    """
-
-    q, r, t, k, n, l = 1, 0, 1, 1, 3, 3
-
-    decimal = limit
-    counter = 0
-
-    while counter != decimal + 1:
-        if 4 * q + r - t < n * t:
-            # yield digit
-            yield n
-            # insert period after first digit
-            if counter == 0:
-                yield '.'
-            # end
-            if decimal == counter:
-                print('')
-                break
-            counter += 1
-            nr = 10 * (r - n * t)
-            n = ((10 * (3 * q + r)) // t) - 10 * n
-            q *= 10
-            r = nr
-        else:
-            nr = (2 * q + r) * l
-            nn = (q * (7 * k) + 2 + (r * l)) // (t * l)
-            q *= k
-            t *= l
-            l += 2
-            k += 1
-            n = nn
-            r = nr
-
 # Wrapper function
-
-
 def main():
 
     # Calls CalcPi with the given limit
@@ -235,7 +190,7 @@ clearscreen()
 if name == "":
     name = input("What is your name? \n")
 
-# create a file called userinfo.txt and write the name to it
+# create a file called userinfo.txt and write the name to it/
 try:
     with open("info/userinfo.txt", "wb") as file:
         nameencoded = name.encode("utf-8", "strict")
@@ -251,7 +206,7 @@ print("Hello, " + name + "!")
 print("Today's date is " + date)
 print("The time is " + currenttime)
 
-# don't exit the program until the user enters 3
+#Don't exit the program until the user enters 7 
 while choice != "7":
 
     # prints the options for the user to choose from
@@ -306,7 +261,7 @@ while choice != "7":
             print_with_color("Invalid Name!", color=Fore.RED)
 
     elif choice == "6" or choice == "wikipedia":
-        print("1. Search Wikipedia \n" + "2. Change sentance count")
+        print("1. Search Wikipedia \n" + "2. Change sentence count")
         wikipediachoice = input("What would you like to do \n")
         if wikipediachoice == "1":
             try:
