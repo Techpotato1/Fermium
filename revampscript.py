@@ -53,7 +53,7 @@ def getweather():
     # City Name
     CITY = weatherlocation
     # updating the URL
-    URL = BASE_URL + "q=" + CITY + "&appid=" + "e91d81d114cb8742d01f3f74cda18d27"
+    URL = BASE_URL + "q=" + CITY + "&appid=" + "!! WEATHER API!!"
     # HTTP request
     response = requests.get(URL)
     # checking the status code of the request
