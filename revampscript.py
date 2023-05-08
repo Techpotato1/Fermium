@@ -5,13 +5,13 @@ import shutil
 import time
 import webbrowser
 import requests
-import json
 from requests import get
 from colorama import init, Fore, Back, Style
 from datetime import datetime
 import keyboard
 import wikipedia
 import sys
+from requests import get
 
 
 # essential for Windows environment
@@ -158,21 +158,24 @@ def getweather():
         )
         print("Try checking the city name")
 
+ip_address = get("https://api.ipify.org").text
 
 # get the approximate location of the user from their IP address
-def getcity(ip_address):
-    # URL to send the request to
-    request_url = "https://geolocation-db.com/jsonp/" + ip_address
-    # Send request and decode the result
-    response = requests.get(request_url)
-    result = response.content.decode()
-    # Clean the returned string so it just contains the dictionary data for the IP address
-    result = result.split("(")[1].strip(")")
-    # Convert this data into a dictionary
-    result = json.loads(result)
-    # get the city name from the result
-    postal = result["postal"]
-    return postal
+def getcity():
+    url = 'https://ip.city/api.php'
+    params = {
+        'ip': ip_address,
+        'key': 'e872c03df48ba8d88ee8181e852599ba'
+    }
+    response = requests.get(url, params=params)
+
+    #Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the JSON response and extract the city field
+        data = response.json()
+        city = data['city']
+        region = data['region']
+    return city + ", " + region
 
 
 # Wrapper function for calculating pi
@@ -199,7 +202,6 @@ except FileExistsError:
     pass
 
 # Gets the IP address of the user
-ip_address = get("https://api.ipify.org").text
 name = ""
 choice = ""
 weatherlocation = ""
@@ -438,7 +440,7 @@ while choice != "7":
 
             # if the user chooses 13, locate their current location using their IP address
             elif choice == "13" or choice == "ip locate":
-                weatherlocation = getcity(ip_address)
+                weatherlocation = getcity()
                 with open("info/weatherlocation.txt", "w") as file:
                     file.write(weatherlocation)
                 print("Your city is " + weatherlocation + "." + "\n")
