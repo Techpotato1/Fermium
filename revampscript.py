@@ -138,11 +138,11 @@ def getweather():
         # convert the temperature to fahrenheit
         temperature = temperature * (9 / 5) - 459.67
         # round the temperature to 2 decimal places
-        temperature = round(temperature, 2)
+        temperature = round(temperature)
         print(f"{CITY:-^30}")
-        print(f"Temperature: {temperature}")
-        print(f"Humidity: {humidity}")
-        print(f"Pressure: {pressure}")
+        print(f"Temperature: {temperature}°f")
+        print(f"Humidity: {humidity}%")
+        print(f"Pressure: {pressure}hPa")
         print(f"Weather Report: {report[0]['description']}")
     else:
         # showing the error message
