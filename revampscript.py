@@ -18,7 +18,8 @@ from toolboxlibrary import *
 import logging
 
 # essential for Windows environment
-init()
+if os.name == 'nt':
+    init()
 
 try:
     f = open("info/log.txt", "w")
