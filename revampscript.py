@@ -1,5 +1,6 @@
 import datetime
 import os
+import platform
 import random
 import shutil
 import time
@@ -12,6 +13,7 @@ import keyboard
 import wikipedia
 import sys
 from requests import get
+import logging
 
 
 # essential for Windows environment
@@ -27,14 +29,6 @@ try:
     f.write("Logging started! \n")
 except:
     pass
-
-# for writing error logs to the log file
-def clog(write):
-    try:
-       f = open("info/log.txt", "a")
-       f.write(write + "\n")
-    except:
-        pass
 
 # print the the options for the user to choose from
 def printoptions():
@@ -152,7 +146,6 @@ def getweather():
         print(f"Weather Report: {report[0]['description']}")
     else:
         # showing the error message
-        clog("Failed to fetch weather!")
         print_with_color(
             "Error in the HTTP request", color=Fore.RED
         )
@@ -268,7 +261,6 @@ try:
         nameencoded = name.encode("utf-8", "strict")
         file.write(nameencoded)
 except:
-    clog("Error creating userinfo file!")
     print_with_color("Error creating file!", color=Fore.RED)
     print_with_color(
         "You will be asked for your name the next time you open the program.",
@@ -290,15 +282,23 @@ while choice != "7":
     
     clearscreen()
 
-    # if the user chooses 1, check the time
+    
+# if the user chooses 1, check the time
     if choice == "1" or choice == "time":
         timeold = ""
-        while not keyboard.is_pressed("esc"):
-            curtime = gettimespecific()
-            if not timeold == curtime:
-                timeold = curtime
-                clearscreen()
-                print("The time is " + timeold + "\nPress 'esc' to exit")
+        if platform.system() == "Windows":
+            while not keyboard.is_pressed("esc"):
+                curtime = gettimespecific()
+                if not timeold == curtime:
+                    timeold = curtime
+                    clearscreen()
+                    print("The time is " + timeold + "\nPress 'esc' to exit")
+        else:
+            while True:
+                curtime = gettimespecific()
+                if not timeold == curtime:
+                    timeold = curtime
+                    print("The time is " + timeold)
 
     # if the user chooses 2, check the date
     elif choice == "2" or choice == "date":
@@ -353,7 +353,6 @@ while choice != "7":
                 print_with_color("Try again!", color=Fore.RED)
             except:
                 print_with_color("Unexpected error!", color=Fore.RED)
-                clog("Wikipedia failed!")
         elif wikipediachoice == "2":
             try:
                 clearscreen()
