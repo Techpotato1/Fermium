@@ -6,16 +6,15 @@ import shutil
 import time
 import webbrowser
 import requests
-from requests import get
 from colorama import init, Fore, Back, Style
-from datetime import datetime
 import keyboard
+from datetime import datetime
 import wikipedia
-import sys
 from requests import get
 import logging
+import sys
 
-logging.basicConfig(filename='info/error.log', level=logging.ERROR)
+logging.basicConfig(filename='info/error.log', level=logging.CRITICAL)
 
 def error_handler(exctype, value, tb):
     logging.exception("Uncaught exception", exc_info=(exctype, value, tb))
@@ -298,6 +297,8 @@ while choice != "7":
                 if not timeold == curtime:
                     timeold = curtime
                     print("The time is " + timeold)
+                if input() == "esc":
+                    break
 
     # if the user chooses 2, check the date
     elif choice == "2" or choice == "date":
@@ -412,7 +413,10 @@ while choice != "7":
                     )
                     time.sleep(0.5)
                     print_with_color("Done!", color=Fore.GREEN)
-                except FileNotFoundError:
+                except:
+                    print_with_color(
+                        "Some files failed to delete", color=Fore.RED, 
+                    )
                     pass
 
             # if the user chooses 10, list the contents of the current directory
