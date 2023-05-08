@@ -301,17 +301,11 @@ while choice != "7":
     # if the user chooses 6, exit the program
     elif choice == "7" or choice == "exit":
         clearscreen()
-        i = input("Press Enter to continue or type cancel to cancel: \n")
-        if i == "Cancel" or "cancel" in i:
-            print("Canceled\n")
-            choice = ""
-        else:
-            print("Goodbye!")
-            time.sleep(0.5)
-            try:
-                sys.exit()
-            except:
-                os._exit(0)
+        try:
+            sys.exit()
+        except:
+            os._exit(0)
+            
     elif choice == "69":
         print_with_color(
             "Developer mode activated!", color=Fore.RED, brightness=Style.DIM
