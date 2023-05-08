@@ -15,6 +15,12 @@ import sys
 from requests import get
 import logging
 
+logging.basicConfig(filename='info/error.log', level=logging.ERROR)
+
+def error_handler(exctype, value, tb):
+    logging.exception("Uncaught exception", exc_info=(exctype, value, tb))
+    
+sys.excepthook = error_handler
 
 # essential for Windows environment
 if os.name == 'nt':
@@ -22,13 +28,6 @@ if os.name == 'nt':
     engine = pyttsx3.init()
     engine.setProperty("rate", 120)
     init()
-
-# create a log file
-try:
-    f = open("info/log.txt", "w")
-    f.write("Logging started! \n")
-except:
-    pass
 
 # print the the options for the user to choose from
 def printoptions():
