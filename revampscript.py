@@ -6,7 +6,6 @@ import time
 import webbrowser
 from colorama import init, Fore, Back, Style
 import keyboard
-from datetime import datetime
 import wikipedia
 from requests import get
 import logging
@@ -202,7 +201,7 @@ contentsofdir = os.listdir(os.getcwd())
 contentsofinfodir = os.listdir("info")
 
 # format the date nicely
-date = date.strftime("%A, %B %d, %Y")
+date = time.strftime("%A, %B %d, %Y")
 
 # setts the currenttime variable to the current time
 currenttime = gettime()
@@ -293,7 +292,8 @@ while choice != "7":
                 curtime = gettimespecific()
                 if not timeold == curtime:
                     timeold = curtime
-                    print("The time is " + timeold)
+                    clearscreen()
+                    print("The time is " + timeold + "\nPress 'esc' to exit")
                 if getkey() == keys.ESCAPE:
                     break
 
@@ -474,14 +474,14 @@ while choice != "7":
                     )
             # if the user chooses 17, calculate pi to the specified amount
             elif choice == "17" or choice == "pi":
-                start = datetime.now()
+                start = time.now()
                 try:
                     cpi()
                     print_with_color("Done!", color=Fore.GREEN)
                 except KeyboardInterrupt:
                     print_with_color("Canceled!", color=Fore.RED)
                     pass
-                end = datetime.now()
+                end = time.now()
                 # format the time difference nicely
                 time_difference = end - start
                 print("Time taken: " + str(time_difference) + "\n")
