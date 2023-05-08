@@ -7,7 +7,6 @@ import webbrowser
 import requests
 import json
 from requests import get
-import pyttsx3
 from colorama import init, Fore, Back, Style
 from datetime import datetime
 import keyboard
@@ -17,23 +16,27 @@ import sys
 
 # essential for Windows environment
 if os.name == 'nt':
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.setProperty("rate", 120)
     init()
 
+# create a log file
 try:
     f = open("info/log.txt", "w")
     f.write("Logging started! \n")
 except:
     pass
 
+# for writing error logs to the log file
 def clog(write):
     try:
        f = open("info/log.txt", "a")
        f.write(write + "\n")
     except:
         pass
+
 # print the the options for the user to choose from
-
-
 def printoptions():
     print(
         """What would you like to do next? \n
@@ -49,7 +52,8 @@ def printoptions():
 
 def clearscreen():
     os.system('cls' if os.name == 'nt' else 'clear')
-    
+
+# define a method for printing color to the terminal
 def print_with_color(s, color=Fore.WHITE, brightness=Style.NORMAL, **kwargs):
     """Utility function wrapping the regular `print()` function 
     but with colors and brightness"""
@@ -75,7 +79,7 @@ def gettimespecific():
     currenttime = time.strftime("%I:%M:%S %p")
     return currenttime
 
-
+# calculate pi to a specified limit
 def calcPi(limit):
     """
     Prints out the digits of PI
@@ -171,7 +175,7 @@ def getcity(ip_address):
     return postal
 
 
-# Wrapper function
+# Wrapper function for calculating pi
 def cpi():
     # Calls CalcPi with the given limit
     pi_digits = calcPi(int(input("Enter the number of decimals to calculate to: ")))
@@ -200,8 +204,6 @@ name = ""
 choice = ""
 weatherlocation = ""
 oldtimeanddate = ""
-engine = pyttsx3.init()
-engine.setProperty("rate", 120)
 wikipediacount = 3
 wikipediachoice = "0"
 
