@@ -15,7 +15,6 @@ import keyboard
 import wikipedia
 import sys
 from toolboxlibrary import *
-import logging
 
 # essential for Windows environment
 if os.name == 'nt':
