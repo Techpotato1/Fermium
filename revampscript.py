@@ -23,7 +23,8 @@ init()
 
 
 def printoptions():
-    print("""What would you like to do next? \n
+    print(
+        """What would you like to do next? \n
 1. Check the time
 2. Check the date
 3. Change the weather location
@@ -31,22 +32,11 @@ def printoptions():
 5. Change your name
 6. Wikipedia
 7. Exit \n
-Developer Options:
-8. Clear the screen
-9. Delete the info folder
-10. List the contents of the current directory
-11. Check the time that the program was last run
-12. Open a URL
-13. Autofill the weather location from IP
-14. Print your public IP address
-15. List the contents of the info folder
-16. Generate a random number
-17. Calculate PI
-\n""")
+"""
+    )
+
 
 # get the weather from the API
-
-
 def getweather():
     # base URL
     BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
@@ -61,17 +51,17 @@ def getweather():
         # getting data in the json format
         data = response.json()
         # getting the main dict block
-        main = data['main']
+        main = data["main"]
         # getting temperature
-        temperature = main['temp']
+        temperature = main["temp"]
         # getting the humidity
-        humidity = main['humidity']
+        humidity = main["humidity"]
         # getting the pressure
-        pressure = main['pressure']
+        pressure = main["pressure"]
         # weather report
-        report = data['weather']
+        report = data["weather"]
         # convert the temperature to fahrenheit
-        temperature = temperature * (9/5) - 459.67
+        temperature = temperature * (9 / 5) - 459.67
         # round the temperature to 2 decimal places
         temperature = round(temperature, 2)
         print(f"{CITY:-^30}")
@@ -81,38 +71,39 @@ def getweather():
         print(f"Weather Report: {report[0]['description']}")
     else:
         # showing the error message
-        print_with_color("Error in the HTTP request",
-                         color=Fore.RED, brightness=Style.DIM)
+        print_with_color(
+            "Error in the HTTP request", color=Fore.RED, brightness=Style.DIM
+        )
         print("Try checking the city name")
+
 
 # get the approximate location of the user from their IP address
 def getcity(ip_address):
     # URL to send the request to
-    request_url = 'https://geolocation-db.com/jsonp/' + ip_address
-# Send request and decode the result
+    request_url = "https://geolocation-db.com/jsonp/" + ip_address
+    # Send request and decode the result
     response = requests.get(request_url)
     result = response.content.decode()
-# Clean the returned string so it just contains the dictionary data for the IP address
+    # Clean the returned string so it just contains the dictionary data for the IP address
     result = result.split("(")[1].strip(")")
-# Convert this data into a dictionary
+    # Convert this data into a dictionary
     result = json.loads(result)
-# get the city name from the result
-    postal = result['postal']
+    # get the city name from the result
+    postal = result["postal"]
     return postal
+
 
 # Wrapper function
 def main():
-
     # Calls CalcPi with the given limit
-    pi_digits = calcPi(
-        int(input("Enter the number of decimals to calculate to: ")))
+    pi_digits = calcPi(int(input("Enter the number of decimals to calculate to: ")))
 
     i = 0
 
     # Prints the output of calcPi generator function
     # Inserts a newline after every 40th number
     for d in pi_digits:
-        print(d, end='')
+        print(d, end="")
         i += 1
         if i == 40:
             print("")
@@ -126,13 +117,13 @@ except FileExistsError:
     pass
 
 # Gets the IP address of the user
-ip_address = get('https://api.ipify.org').text
+ip_address = get("https://api.ipify.org").text
 name = ""
 choice = ""
 weatherlocation = ""
 oldtimeanddate = ""
 engine = pyttsx3.init()
-engine.setProperty('rate', 120)
+engine.setProperty("rate", 120)
 wikipediacount = 3
 wikipediachoice = "0"
 
@@ -196,20 +187,22 @@ try:
         nameencoded = name.encode("utf-8", "strict")
         file.write(nameencoded)
 except:
-    print_with_color("Error creating file!",
-                     color=Fore.RED, brightness=Style.DIM)
-    print_with_color("You will be asked for your name the next time you open the program.",
-                     color=Fore.RED, brightness=Style.DIM)
+    print_with_color("Error creating file!", color=Fore.RED, brightness=Style.DIM)
+    print_with_color(
+        "You will be asked for your name the next time you open the program.",
+        color=Fore.RED,
+        brightness=Style.DIM,
+    )
 
 # get the user's name and greet them
 print("Hello, " + name + "!")
 print("Today's date is " + date)
 print("The time is " + currenttime)
 
-#Don't exit the program until the user enters 7 
+# Don't exit the program until the user enters 7
 while choice != "7":
-
     # prints the options for the user to choose from
+    time.sleep(2)
     printoptions()
 
     # asks the user to choose an option
@@ -240,8 +233,7 @@ while choice != "7":
     # if the user chooses 4, get the weather
     elif choice == "4" or choice == "weather":
         if weatherlocation == "":
-            weatherlocation = input(
-                "What is your city? (Zip codes will work) \n")
+            weatherlocation = input("What is your city? (Zip codes will work) \n")
             with open("info/weatherlocation.txt", "w") as file:
                 file.write(weatherlocation)
             getweather()
@@ -267,7 +259,9 @@ while choice != "7":
             try:
                 clearscreen()
                 searchterm = input(
-                    'Enter a search term: \n' + '(Use parentheses to denote the type, ex: "Mars (Planet)") \n')
+                    "Enter a search term: \n"
+                    + '(Use parentheses to denote the type, ex: "Mars (Planet)") \n'
+                )
                 clearscreen()
                 print("Loading!")
                 print(wikipedia.summary(searchterm, sentences=wikipediacount))
@@ -278,9 +272,12 @@ while choice != "7":
             try:
                 clearscreen()
                 wikipediacount = int(
-                    input('Enter the number of sentences to display: \n'))
-                print_with_color("Number of sentences changed to: " +
-                                 str(wikipediacount), color=Fore.GREEN)
+                    input("Enter the number of sentences to display: \n")
+                )
+                print_with_color(
+                    "Number of sentences changed to: " + str(wikipediacount),
+                    color=Fore.GREEN,
+                )
             except:
                 print_with_color("Invalid Number!", color=Fore.RED)
         else:
@@ -300,87 +297,117 @@ while choice != "7":
                 sys.exit()
             except:
                 os._exit(0)
-
-    # if the user chooses 10, clear the screen
-    elif choice == "8" or choice == "clear":
-        print("Clearing screen...")
-        time.sleep(0.5)
+    elif choice == "69":
+        print_with_color(
+            "Developer mode activated!", color=Fore.RED, brightness=Style.DIM
+        )
+        time.sleep(1)
         clearscreen()
+        while choice != "devexit":
+            time.sleep(2)
+            print(
+                """Developer Options:
+8. Clear the screen
+9. Delete the info folder
+10. List the contents of the current directory
+11. Check the time that the program was last run
+12. Open a URL
+13. Autofill the weather location from IP
+14. Print your public IP address
+15. List the contents of the info folder
+16. Generate a random number
+17. Calculate PI"""
+            )
+            choice = input("Enter your choice: ")
+            clearscreen()
+            if choice == "8" or choice == "clear":
+                print("Clearing screen...")
+                time.sleep(0.5)
+                clearscreen()
 
-    # if the user chooses 11, delete the info folder
-    elif choice == "9" or choice == "delete info":
-        try:
-            shutil.rmtree("info")
-            print_with_color("Deleting info folder...",
-                             color=Fore.RED, brightness=Style.DIM)
-            time.sleep(0.5)
-            print_with_color("Done!", color=Fore.GREEN, brightness=Style.DIM)
-        except FileNotFoundError:
-            pass
+            # if the user chooses 11, delete the info folder
+            elif choice == "9" or choice == "delete info":
+                try:
+                    shutil.rmtree("info")
+                    print_with_color(
+                        "Deleting info folder...", color=Fore.RED, brightness=Style.DIM
+                    )
+                    time.sleep(0.5)
+                    print_with_color("Done!", color=Fore.GREEN, brightness=Style.DIM)
+                except FileNotFoundError:
+                    pass
 
-    # if the user chooses 12, list the contents of the current directory
-    elif choice == "10" or choice == "list current dir":
-        print("Contents of the current directory: \n")
-        for i in contentsofdir:
-            print(i)
-        print("\n")
+            # if the user chooses 12, list the contents of the current directory
+            elif choice == "10" or choice == "list current dir":
+                print("Contents of the current directory: \n")
+                for i in contentsofdir:
+                    print(i)
+                print("\n")
 
-    # if the user chooses 13, display the time the program was last run
-    elif choice == "11" or choice == "time last run":
-        if oldtimeanddate == "":
-            print("No previous time and date")
-        else:
-            print(oldtimeanddate)
+            # if the user chooses 13, display the time the program was last run
+            elif choice == "11" or choice == "time last run":
+                if oldtimeanddate == "":
+                    print("No previous time and date")
+                else:
+                    print(oldtimeanddate)
 
-    # if the user chooses 14, ask the user what url they want to open
-    elif choice == "12" or choice == "open url":
-        # ask the user what url they want to open
-        urlopen = input("What is the url you want to open? \n")
-        # open the url in the default browser
-        webbrowser.open(urlopen)
+            # if the user chooses 14, ask the user what url they want to open
+            elif choice == "12" or choice == "open url":
+                # ask the user what url they want to open
+                urlopen = input("What is the url you want to open? \n")
+                # open the url in the default browser
+                webbrowser.open_new(urlopen)
 
-    # if the user chooses 15, locate their current location using their IP address
-    elif choice == "13" or choice == "ip locate":
-        weatherlocation = getcity(ip_address)
-        with open("info/weatherlocation.txt", "w") as file:
-            file.write(weatherlocation)
-        print("Your city is " + weatherlocation + "." + "\n")
+            # if the user chooses 15, locate their current location using their IP address
+            elif choice == "13" or choice == "ip locate":
+                weatherlocation = getcity(ip_address)
+                with open("info/weatherlocation.txt", "w") as file:
+                    file.write(weatherlocation)
+                print("Your city is " + weatherlocation + "." + "\n")
 
-    # if the user chooses 16, display their current IP address
-    elif choice == "14" or choice == "ip":
-        print("Your IP address is " + ip_address + "." + "\n")
+            # if the user chooses 16, display their current IP address
+            elif choice == "14" or choice == "ip":
+                print("Your IP address is " + ip_address + "." + "\n")
 
-    # if the user chooses 17, display contents of the info folder
-    elif choice == "15" or choice == "list info":
-        print("Contents of the info directory: \n")
-        contentsofinfodir = os.listdir("info")
-        for i in contentsofinfodir:
-            print(i)
-        print("\n")
+            # if the user chooses 17, display contents of the info folder
+            elif choice == "15" or choice == "list info":
+                print("Contents of the info directory: \n")
+                contentsofinfodir = os.listdir("info")
+                for i in contentsofinfodir:
+                    print(i)
+                print("\n")
 
-    # if the user chooses 20, choose a random number
-    elif choice == "16" or choice == "randomnum":
-        firstbetween = int(input("What is the smallest number? \n"))
-        secondbetween = int(input("What is the largest number? \n"))
-        if firstbetween > secondbetween:
-            print_with_color("The first number must be smaller than the second number. \n",
-                             color=Fore.RED, brightness=Style.DIM)
-        else:
-            print("Your random number is " +
-                  str(random.randint(firstbetween, secondbetween)) + "." + "\n")
-    elif choice == "17" or choice == "pi":
-        start = datetime.now()
-        try:
-            main()
-            print_with_color("Done!", color=Fore.GREEN, brightness=Style.DIM)
-        except KeyboardInterrupt:
-            print_with_color("Canceled!", color=Fore.RED, brightness=Style.DIM)
-            pass
-        end = datetime.now()
-        # format the time difference nicely
-        time_difference = end - start
-        print("Time taken: " + str(time_difference) + "\n")
+            # if the user chooses 20, choose a random number
+            elif choice == "16" or choice == "randomnum":
+                firstbetween = int(input("What is the smallest number? \n"))
+                secondbetween = int(input("What is the largest number? \n"))
+                if firstbetween > secondbetween:
+                    print_with_color(
+                        "The first number must be smaller than the second number. \n",
+                        color=Fore.RED,
+                        brightness=Style.DIM,
+                    )
+                else:
+                    print(
+                        "Your random number is "
+                        + str(random.randint(firstbetween, secondbetween))
+                        + "."
+                        + "\n"
+                    )
+            elif choice == "17" or choice == "pi":
+                start = datetime.now()
+                try:
+                    main()
+                    print_with_color("Done!", color=Fore.GREEN, brightness=Style.DIM)
+                except KeyboardInterrupt:
+                    print_with_color("Canceled!", color=Fore.RED, brightness=Style.DIM)
+                    pass
+                end = datetime.now()
+                # format the time difference nicely
+                time_difference = end - start
+                print("Time taken: " + str(time_difference) + "\n")
 
     else:
-        print_with_color("Invalid choice." + "\n",
-                         color=Fore.RED, brightness=Style.DIM)
+        print_with_color(
+            "Invalid choice." + "\n", color=Fore.RED, brightness=Style.DIM
+        )
