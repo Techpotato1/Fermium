@@ -289,13 +289,13 @@ while choice != "7":
         else:
             # this shit better work
             while True:
+                if getkey(False) == keys.ESCAPE:
+                    break
                 curtime = gettimespecific()
                 if not timeold == curtime:
                     timeold = curtime
                     clearscreen()
                     print("The time is " + timeold + "\nPress 'esc' to exit")
-                if getkey(False) == keys.ESCAPE:
-                    break
 
     # if the user chooses 2, check the date
     elif choice == "2" or choice == "date":
