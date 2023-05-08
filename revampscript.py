@@ -254,14 +254,13 @@ with open("info/timeanddate.txt", "w") as f:
     f.write("\n")
     f.write(currenttime)
 
-# CLEARS THE SCREEN
 clearscreen()
 
 # if there is nothing in name, ask for it
 if name == "":
     name = input("What is your name? \n")
 
-# create a file called userinfo.txt and write the name to it/
+# create a file called userinfo.txt and write the name to it
 try:
     with open("info/userinfo.txt", "wb") as file:
         nameencoded = name.encode("utf-8", "strict")
@@ -281,13 +280,12 @@ print("The time is " + currenttime)
 
 # Don't exit the program until the user enters 7
 while choice != "7":
-    # prints the options for the user to choose from
+    
     time.sleep(2)
     printoptions()
 
-    # asks the user to choose an option
     choice = input("Enter your choice: ")
-    # clears the screen
+    
     clearscreen()
 
     # if the user chooses 1, check the time
@@ -369,7 +367,7 @@ while choice != "7":
         else:
             print_with_color("Invalid number!", color=Fore.RED)
 
-    # if the user chooses 6, exit the program
+    # if the user chooses 7, exit the program
     elif choice == "7" or choice == "exit":
         clearscreen()
         try:
@@ -405,7 +403,7 @@ while choice != "7":
                 time.sleep(0.5)
                 clearscreen()
 
-            # if the user chooses 11, delete the info folder
+            # if the user chooses 9, delete the info folder
             elif choice == "9" or choice == "delete info":
                 try:
                     shutil.rmtree("info")
@@ -417,39 +415,39 @@ while choice != "7":
                 except FileNotFoundError:
                     pass
 
-            # if the user chooses 12, list the contents of the current directory
+            # if the user chooses 10, list the contents of the current directory
             elif choice == "10" or choice == "list current dir":
                 print("Contents of the current directory: \n")
                 for i in contentsofdir:
                     print(i)
                 print("\n")
 
-            # if the user chooses 13, display the time the program was last run
+            # if the user chooses 11, display the time the program was last run
             elif choice == "11" or choice == "time last run":
                 if oldtimeanddate == "":
                     print("No previous time and date")
                 else:
                     print(oldtimeanddate)
 
-            # if the user chooses 14, ask the user what url they want to open
+            # if the user chooses 12, ask the user what url they want to open
             elif choice == "12" or choice == "open url":
                 # ask the user what url they want to open
                 urlopen = input("What is the url you want to open? \n")
                 # open the url in the default browser
                 webbrowser.open_new(urlopen)
 
-            # if the user chooses 15, locate their current location using their IP address
+            # if the user chooses 13, locate their current location using their IP address
             elif choice == "13" or choice == "ip locate":
                 weatherlocation = getcity(ip_address)
                 with open("info/weatherlocation.txt", "w") as file:
                     file.write(weatherlocation)
                 print("Your city is " + weatherlocation + "." + "\n")
 
-            # if the user chooses 16, display their current IP address
+            # if the user chooses 13, display their current IP address
             elif choice == "14" or choice == "ip":
                 print("Your IP address is " + ip_address + "." + "\n")
 
-            # if the user chooses 17, display contents of the info folder
+            # if the user chooses 15, display contents of the info folder
             elif choice == "15" or choice == "list info":
                 print("Contents of the info directory: \n")
                 contentsofinfodir = os.listdir("info")
@@ -457,7 +455,7 @@ while choice != "7":
                     print(i)
                 print("\n")
 
-            # if the user chooses 20, choose a random number
+            # if the user chooses 16, choose a random number
             elif choice == "16" or choice == "randomnum":
                 firstbetween = int(input("What is the smallest number? \n"))
                 secondbetween = int(input("What is the largest number? \n"))
@@ -473,6 +471,7 @@ while choice != "7":
                         + "."
                         + "\n"
                     )
+            # if the user chooses 17, calculate pi to the specified amount
             elif choice == "17" or choice == "pi":
                 start = datetime.now()
                 try:
