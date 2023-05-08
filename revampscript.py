@@ -1,11 +1,9 @@
-import datetime
 import os
 import platform
 import random
 import shutil
 import time
 import webbrowser
-import requests
 from colorama import init, Fore, Back, Style
 import keyboard
 from datetime import datetime
@@ -62,13 +60,11 @@ BRIGHTNESS = [Style.DIM, Style.NORMAL, Style.BRIGHT]
 
 #get the time and format it nicely
 def gettime():
-    currenttime = datetime.now()
     currenttime = time.strftime("%I:%M %p")
     return currenttime
 
 #get the time with seconds
 def gettimespecific():
-    currenttime = datetime.now()
     currenttime = time.strftime("%I:%M:%S %p")
     return currenttime
 
@@ -119,7 +115,7 @@ def getweather():
     # updating the URL
     URL = BASE_URL + "q=" + CITY + "&appid=" + "9942f72d8fddd917dc980f5d4c6d8b1f"
     # HTTP request
-    response = requests.get(URL)
+    response = get(URL)
     # checking the status code of the request
     if response.status_code == 200:
         # getting data in the json format
@@ -159,7 +155,7 @@ def getcity():
         'ip': ip_address,
         'key': 'e872c03df48ba8d88ee8181e852599ba'
     }
-    response = requests.get(url, params=params)
+    response = get(url, params=params)
 
     #Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -206,7 +202,6 @@ contentsofdir = os.listdir(os.getcwd())
 contentsofinfodir = os.listdir("info")
 
 # format the date nicely
-date = datetime.now()
 date = date.strftime("%A, %B %d, %Y")
 
 # setts the currenttime variable to the current time
@@ -293,6 +288,7 @@ while choice != "7":
                     clearscreen()
                     print("The time is " + timeold + "\nPress 'esc' to exit")
         else:
+            # this shit better work
             while True:
                 curtime = gettimespecific()
                 if not timeold == curtime:
