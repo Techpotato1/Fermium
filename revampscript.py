@@ -13,6 +13,7 @@ import wikipedia
 from requests import get
 import logging
 import sys
+from getkey import getkey, keys
 
 logging.basicConfig(filename='info/error.log', level=logging.CRITICAL)
 
@@ -297,7 +298,7 @@ while choice != "7":
                 if not timeold == curtime:
                     timeold = curtime
                     print("The time is " + timeold)
-                if input() == "esc":
+                if getkey() == keys.ESCAPE:
                     break
 
     # if the user chooses 2, check the date
