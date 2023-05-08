@@ -15,10 +15,23 @@ import keyboard
 import wikipedia
 import sys
 from toolboxlibrary import *
+import logging
 
 # essential for Windows environment
 init()
 
+try:
+    f = open("info/log.txt", "w")
+    f.write("Logging started! \n")
+except:
+    pass
+
+def clog(write):
+    try:
+       f = open("info/log.txt", "a")
+       f.write(write + "\n")
+    except:
+        pass
 # print the the options for the user to choose from
 
 
@@ -43,7 +56,7 @@ def getweather():
     # City Name
     CITY = weatherlocation
     # updating the URL
-    URL = BASE_URL + "q=" + CITY + "&appid=" + "!! WEATHER API!!"
+    URL = BASE_URL + "q=" + CITY + "&appid=" + "9942f72d8fddd917dc980f5d4c6d8b1f"
     # HTTP request
     response = requests.get(URL)
     # checking the status code of the request
@@ -71,6 +84,7 @@ def getweather():
         print(f"Weather Report: {report[0]['description']}")
     else:
         # showing the error message
+        clog("Failed to fetch weather!")
         print_with_color(
             "Error in the HTTP request", color=Fore.RED, brightness=Style.DIM
         )
@@ -94,7 +108,7 @@ def getcity(ip_address):
 
 
 # Wrapper function
-def main():
+def cpi():
     # Calls CalcPi with the given limit
     pi_digits = calcPi(int(input("Enter the number of decimals to calculate to: ")))
 
@@ -187,6 +201,7 @@ try:
         nameencoded = name.encode("utf-8", "strict")
         file.write(nameencoded)
 except:
+    clog("Error creating userinfo file!")
     print_with_color("Error creating file!", color=Fore.RED, brightness=Style.DIM)
     print_with_color(
         "You will be asked for your name the next time you open the program.",
@@ -397,7 +412,7 @@ while choice != "7":
             elif choice == "17" or choice == "pi":
                 start = datetime.now()
                 try:
-                    main()
+                    cpi()
                     print_with_color("Done!", color=Fore.GREEN, brightness=Style.DIM)
                 except KeyboardInterrupt:
                     print_with_color("Canceled!", color=Fore.RED, brightness=Style.DIM)

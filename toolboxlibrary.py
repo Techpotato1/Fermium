@@ -1,19 +1,9 @@
-from base64 import decode
 import datetime
 import os
-import random
-import shutil
 import time
-import webbrowser
-import requests
-import json
-from requests import get
-import pyttsx3
-from colorama import init, Fore, Back, Style
+from colorama import Fore, Back, Style
 from datetime import datetime
-import keyboard
-import wikipedia
-import sys
+
 
 def clearscreen():
     os.system('cls' if os.name == 'nt' else 'clear')
