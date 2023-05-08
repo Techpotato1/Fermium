@@ -288,6 +288,7 @@ while choice != "7":
                     print("The time is " + timeold + "\nPress 'esc' to exit")
         else:
             # this shit better work
+            getkey(False)
             while True:
                 curtime = gettimespecific()
                 if not timeold == curtime:
