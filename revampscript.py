@@ -1,4 +1,3 @@
-from base64 import decode
 import datetime
 import os
 import random
@@ -151,7 +150,7 @@ def getweather():
         # showing the error message
         clog("Failed to fetch weather!")
         print_with_color(
-            "Error in the HTTP request", color=Fore.RED, brightness=Style.DIM
+            "Error in the HTTP request", color=Fore.RED
         )
         print("Try checking the city name")
 
@@ -267,11 +266,10 @@ try:
         file.write(nameencoded)
 except:
     clog("Error creating userinfo file!")
-    print_with_color("Error creating file!", color=Fore.RED, brightness=Style.DIM)
+    print_with_color("Error creating file!", color=Fore.RED)
     print_with_color(
         "You will be asked for your name the next time you open the program.",
         color=Fore.RED,
-        brightness=Style.DIM,
     )
 
 # get the user's name and greet them
@@ -379,7 +377,7 @@ while choice != "7":
             
     elif choice == "69":
         print_with_color(
-            "Developer mode activated!", color=Fore.RED, brightness=Style.DIM
+            "Developer mode activated!", color=Fore.RED
         )
         time.sleep(1)
         clearscreen()
@@ -410,10 +408,10 @@ while choice != "7":
                 try:
                     shutil.rmtree("info")
                     print_with_color(
-                        "Deleting info folder...", color=Fore.RED, brightness=Style.DIM
+                        "Deleting info folder...", color=Fore.RED, 
                     )
                     time.sleep(0.5)
-                    print_with_color("Done!", color=Fore.GREEN, brightness=Style.DIM)
+                    print_with_color("Done!", color=Fore.GREEN)
                 except FileNotFoundError:
                     pass
 
@@ -465,7 +463,6 @@ while choice != "7":
                     print_with_color(
                         "The first number must be smaller than the second number. \n",
                         color=Fore.RED,
-                        brightness=Style.DIM,
                     )
                 else:
                     print(
@@ -478,9 +475,9 @@ while choice != "7":
                 start = datetime.now()
                 try:
                     cpi()
-                    print_with_color("Done!", color=Fore.GREEN, brightness=Style.DIM)
+                    print_with_color("Done!", color=Fore.GREEN)
                 except KeyboardInterrupt:
-                    print_with_color("Canceled!", color=Fore.RED, brightness=Style.DIM)
+                    print_with_color("Canceled!", color=Fore.RED)
                     pass
                 end = datetime.now()
                 # format the time difference nicely
@@ -489,5 +486,5 @@ while choice != "7":
 
     else:
         print_with_color(
-            "Invalid choice." + "\n", color=Fore.RED, brightness=Style.DIM
+            "Invalid choice." + "\n", color=Fore.RED
         )
