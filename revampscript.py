@@ -1,3 +1,4 @@
+import datetime
 import os
 import platform
 import random
@@ -10,6 +11,7 @@ import wikipedia
 from requests import get
 import sys
 from getkey import getkey, keys
+from datetime import datetime
 
 # essential for Windows environment
 if os.name == 'nt':
@@ -474,14 +476,14 @@ Devexit"""
                     )
             # if the user chooses 17, calculate pi to the specified amount
             elif choice == "17" or choice == "pi":
-                start = time.now()
+                start = datetime.now()
                 try:
                     cpi()
                     print_with_color("Done!", color=Fore.GREEN)
                 except KeyboardInterrupt:
                     print_with_color("Canceled!", color=Fore.RED)
                     pass
-                end = time.now()
+                end = datetime.now()
                 # format the time difference nicely
                 time_difference = end - start
                 print("Time taken: " + str(time_difference) + "\n")
