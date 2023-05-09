@@ -8,16 +8,8 @@ from colorama import init, Fore, Back, Style
 import keyboard
 import wikipedia
 from requests import get
-import logging
 import sys
 from getkey import getkey, keys
-
-logging.basicConfig(filename='info/error.log', level=logging.CRITICAL)
-
-def error_handler(exctype, value, tb):
-    logging.exception("Uncaught exception", exc_info=(exctype, value, tb))
-    
-sys.excepthook = error_handler
 
 # essential for Windows environment
 if os.name == 'nt':
