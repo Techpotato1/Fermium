@@ -239,6 +239,14 @@ clearscreen()
 # if there is nothing in name, ask for it
 if name == "":
     name = input("What is your name? \n")
+    
+if weatherlocation == "":
+    if input("Would you like to autofill the weather location? \n") == "yes" or "y":
+        weatherlocation = getcity()
+        with open("info/weatherlocation.txt", "w") as file:
+                file.write(weatherlocation)
+    else:
+        pass
 
 # create a file called userinfo.txt and write the name to it
 try:
@@ -252,6 +260,7 @@ except:
         color=Fore.RED,
     )
 
+clearscreen()
 # get the user's name and greet them
 print("Hello, " + name + "!")
 print("Today's date is " + date)
@@ -259,8 +268,6 @@ print("The time is " + currenttime)
 
 # Don't exit the program until the user enters 7
 while choice != "7":
-    
-    time.sleep(2)
     printoptions()
 
     choice = input("Enter your choice: ")
@@ -384,7 +391,8 @@ while choice != "7":
 14. Print your public IP address
 15. List the contents of the info folder
 16. Generate a random number
-17. Calculate PI"""
+17. Calculate PI
+Devexit"""
             )
             choice = input("Enter your choice: ")
             clearscreen()
