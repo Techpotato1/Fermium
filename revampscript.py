@@ -15,9 +15,6 @@ from datetime import datetime
 
 # essential for Windows environment
 if os.name == 'nt':
-    import pyttsx3
-    engine = pyttsx3.init()
-    engine.setProperty("rate", 120)
     init()
 
 # print the the options for the user to choose from
