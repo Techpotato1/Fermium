@@ -17,6 +17,8 @@ from datetime import datetime
 if os.name == 'nt':
     init()
 
+print("Loading, please wait...")
+
 # print the the options for the user to choose from
 def printoptions():
     print(
@@ -233,11 +235,21 @@ with open("info/timeanddate.txt", "w") as f:
     f.write("\n")
     f.write(currenttime)
 
+deleteafteruse = False
+
 clearscreen()
 
 # if there is nothing in name, ask for it
 if name == "":
     name = input("What is your name? \n")
+    name = name.capitalize()
+    
+if(name.lower() == "shred" or name.lower() == "incognito"):
+    deleteafteruse = True
+    name = "Anonymous"
+    print_with_color("Incognito mode activated!", color=Fore.RED)
+    time.sleep(1)
+
     
 if weatherlocation == "":
     if input("Would you like to autofill the weather location? \n") == "yes" or "y":
@@ -365,20 +377,27 @@ while choice != "7":
 
     # if the user chooses 7, exit the program
     elif choice == "7" or choice == "exit":
+        if(deleteafteruse):
+            try:
+                shutil.rmtree("info")
+                print_with_color(
+                    "Deleting info folder...", color=Fore.RED, 
+                )
+                time.sleep(0.5)
+                print_with_color("Done!", color=Fore.GREEN)
+            except:
+                    print_with_color("Some files failed to delete", color=Fore.RED,)
+                    pass
         clearscreen()
         try:
             sys.exit()
         except:
             os._exit(0)
             
-    elif choice == "69":
-        print_with_color(
-            "Developer mode activated!", color=Fore.RED
-        )
-        time.sleep(1)
+    elif choice == "69" or choice.lower() =="dev":
+        print_with_color("Developer mode activated!", color=Fore.RED)
         clearscreen()
-        while choice != "devexit":
-            time.sleep(2)
+        while choice.lower() != "exit" and choice.lower() != "devexit":
             print(
                 """Developer Options:
 8. Clear the screen
@@ -391,7 +410,7 @@ while choice != "7":
 15. List the contents of the info folder
 16. Generate a random number
 17. Calculate PI
-Devexit"""
+"""
             )
             choice = input("Enter your choice: ")
             clearscreen()
@@ -434,7 +453,12 @@ Devexit"""
                 # ask the user what url they want to open
                 urlopen = input("What is the url you want to open? \n")
                 # open the url in the default browser
-                webbrowser.open_new(urlopen)
+                webbrowser.open_new("https://" + urlopen)
+                pos = urlopen.rfind('.') # find rightmost dot
+                if pos >= 0:         # found one
+                    urlopen = urlopen[:pos]
+                #TODO: Implement default browser detection
+                print_with_color("Opened " + urlopen.capitalize() + " in a new tab", color=Fore.GREEN) 
 
             # if the user chooses 13, locate their current location using their IP address
             elif choice == "13" or choice == "ip locate":
