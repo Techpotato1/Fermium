@@ -1,4 +1,2 @@
-info/
-__pycache__/
-output/
 .gitignore
+userinfo.txt

@@ -5,7 +5,7 @@ import random
 import shutil
 import time
 import webbrowser
-from colorama import init, Fore, Back, Style
+from colorama import Fore, Back, Style
 import keyboard
 import wikipedia
 from requests import get
@@ -13,9 +13,12 @@ import sys
 from getkey import getkey, keys
 from datetime import datetime
 
-# essential for Windows environment
-if os.name == 'nt':
-    init()
+name = ""
+choice = ""
+weatherlocation = ""
+wikipediacount = 3
+wikipediachoice = "0"
+contentsofdir = os.listdir(os.getcwd())
 
 print("Loading, please wait...")
 def printoptions():
@@ -170,96 +173,66 @@ def cpi():
         if i == 40:
             print("")
             i = 0
-try:
-    os.mkdir("info")
-except FileExistsError:
-    pass
-
-name = ""
-choice = ""
-weatherlocation = ""
-oldtimeanddate = ""
-wikipediacount = 3
-wikipediachoice = "0"
-contentsofdir = os.listdir(os.getcwd())
-contentsofinfodir = os.listdir("info")
 
 # format the date nicely
 date = time.strftime("%A, %B %d, %Y")
 currenttime = gettime()
 
-# read userinfo
+# read name
 try:
-    with open("info/userinfo.txt", "rb") as f:
-        nameencoded = f.read()
-        name = nameencoded.decode("utf-8", "strict")
-except:
-    pass
-
+    with open("userinfo.txt", "r", encoding="utf-8") as f:
+            name = f.readline().strip()
+except FileNotFoundError:
+        pass
+    
 # read weatherlocation
 try:
-    with open("info/weatherlocation.txt", "r") as f:
-        weatherlocation = f.read()
-except FileNotFoundError:
+    with open("userinfo.txt", "r") as f:
+        # Skip the first line
+        f.readline()
+        # Read the second line
+        weatherlocation = f.readline().strip()
+except:
     pass
-
-# an unused function to get the last contents of the info folder
-try:
-    with open("info/currentdir", "r") as f:
-        olddircontents = f.read()
-except FileNotFoundError:
-    pass
-
-# read the timeanddate
-try:
-    with open("info/timeanddate.txt", "r") as f:
-        oldtimeanddate = f.read()
-except FileNotFoundError:
-    pass
-
-# write the time and date
-with open("info/timeanddate.txt", "w") as f:
-    f.write("Date last run: \n")
-    f.write(date)
-    f.write("\n")
-    f.write(currenttime)
 
 deleteafteruse = False
 
 clearscreen()
 
 # ask for name
+# userinfo is created, the code should work if no one tampers with the file
 if name == "":
     name = input("What is your name? \n")
     name = name.capitalize()
-    
+    try:
+        with open("userinfo.txt", "w") as f:
+            nameencoded = name.encode("utf-8", "strict")
+            f.write(name)
+    except Exception as e:
+        print_with_color("Error creating file!", color=Fore.RED)
+        print_with_color(
+            "This may cause errors in several functions!",
+            color=Fore.RED,
+        )
+        print(f"{e}")
+
 # don't store user info
 if(name.lower() == "shred" or name.lower() == "incognito"):
     deleteafteruse = True
     name = "Anonymous"
     print_with_color("Incognito mode activated!", color=Fore.RED)
-    time.sleep(1)
-
     
 if weatherlocation == "":
-    if input("Would you like to autofill the weather location? \n") == "yes" or "y":
+    wchoice = input("Would you like to autofill the weather location? \n")
+    if wchoice == "y" or wchoice == "yes":
         weatherlocation = getcity()
-        with open("info/weatherlocation.txt", "w") as file:
-                file.write(weatherlocation)
+        with open("userinfo.txt", "r+") as f:
+            # again this is stupid
+            f.readline()
+            f.write("\n" + weatherlocation)
     else:
-        pass
-
-# write name to userinfo
-try:
-    with open("info/userinfo.txt", "wb") as file:
-        nameencoded = name.encode("utf-8", "strict")
-        file.write(nameencoded)
-except:
-    print_with_color("Error creating file!", color=Fore.RED)
-    print_with_color(
-        "You will be asked for your name the next time you open the program.",
-        color=Fore.RED,
-    )
+        # dumb solution but works
+        weatherlocation = ""
 
 clearscreen()
 # greet user
@@ -302,16 +275,20 @@ while choice != "7":
     # get weather location
     elif choice == "3":
         weatherlocation = input("What is your city? \n")
-        with open("info/weatherlocation.txt", "w") as file:
-            file.write(weatherlocation)
+        with open("userinfo.txt", "w") as f:
+            f.readline()
+            f.write("\n" + weatherlocation)
 
     # display weather
     elif choice == "4" or choice == "weather":
         if weatherlocation == "":
             weatherlocation = input("What is your city? (Zip codes will work) \n")
-            with open("info/weatherlocation.txt", "w") as file:
-                file.write(weatherlocation)
+            with open("userinfo.txt", "r+") as f:
+                f.readline()
+                f.write("\n" + weatherlocation)
+            print('\n')
             getweather()
+            print('\n')
         else:
             getweather()
             print('\n')
@@ -324,8 +301,8 @@ while choice != "7":
             print_with_color("Invalid Name!", color=Fore.RED)
             pass
         try:
-            with open("info/userinfo.txt", "w") as file:
-                file.write(name)
+            with open("userinfo.txt", "w") as f:
+                f.write(name)
             print_with_color("Name Changed to: " + name, color=Fore.GREEN)
         except:
             print_with_color("Invalid Name!", color=Fore.RED)
@@ -371,11 +348,10 @@ while choice != "7":
     elif choice == "7" or choice == "exit":
         if(deleteafteruse):
             try:
-                shutil.rmtree("info")
+                shutil.os.remove("userinfo.txt")
                 print_with_color(
-                    "Deleting info folder...", color=Fore.RED, 
+                    "Deleting user info...", color=Fore.RED, 
                 )
-                time.sleep(0.5)
                 print_with_color("Done!", color=Fore.GREEN)
             except:
                     print_with_color("Some files failed to delete", color=Fore.RED,)
@@ -393,13 +369,11 @@ while choice != "7":
             print(
                 """Developer Options:
 8. Clear the screen
-9. Delete the info folder
+9. Delete the user info
 10. List the contents of the current directory
-11. Check the time that the program was last run
 12. Open a URL
 13. Autofill the weather location from IP
 14. Print your public IP address
-15. List the contents of the info folder
 16. Generate a random number
 17. Calculate PI
 Devexit
@@ -409,17 +383,15 @@ Devexit
             clearscreen()
             if choice == "8" or choice == "clear":
                 print("Clearing screen...")
-                time.sleep(0.5)
                 clearscreen()
 
-            # delete the info folder
+            # delete userinfo
             elif choice == "9" or choice == "delete info":
                 try:
-                    shutil.rmtree("info")
+                    shutil.os.remove("userinfo.txt")
                     print_with_color(
-                        "Deleting info folder...", color=Fore.RED, 
+                        "Deleting user info...", color=Fore.RED, 
                     )
-                    time.sleep(0.5)
                     print_with_color("Done!", color=Fore.GREEN)
                 except:
                     print_with_color(
@@ -434,16 +406,8 @@ Devexit
                     print(i)
                 print("\n")
 
-            # display the time the program was last run
-            elif choice == "11" or choice == "time last run":
-                if oldtimeanddate == "":
-                    print("No previous time and date")
-                else:
-                    print(oldtimeanddate)
-
             # ask the user what url they want to open
             # somewhat broken, website detection is janky
-            # only .com websites work
             elif choice == "12" or choice == "open url":
                 urlopen = input("What is the url you want to open? \n")
                 webbrowser.open_new("https://" + urlopen)
@@ -454,23 +418,19 @@ Devexit
                 print_with_color("Opened " + urlopen.capitalize() + " in a new tab", color=Fore.GREEN) 
 
             # update location with ip
+            # works as long as you don't fuck with the file
             elif choice == "13" or choice == "ip locate":
                 weatherlocation = getcity()
-                with open("info/weatherlocation.txt", "w") as file:
-                    file.write(weatherlocation)
+                with open("userinfo.txt", "r") as f:
+                    wdata = f.readlines()
+                    wdata[1] = weatherlocation
+                with open("userinfo.txt", "w") as f:
+                    f.writelines(wdata)
                 print("Your city is " + weatherlocation + "." + "\n")
 
             # display IP
             elif choice == "14" or choice == "ip":
                 print("Your IP address is " + ip_address + "." + "\n")
-
-            # display info folder
-            elif choice == "15" or choice == "list info":
-                print("Contents of the info directory: \n")
-                contentsofinfodir = os.listdir("info")
-                for i in contentsofinfodir:
-                    print(i)
-                print("\n")
 
             # random num
             elif choice == "16" or choice == "randomnum":
