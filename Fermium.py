@@ -344,7 +344,7 @@ while choice != "6":
         try:
             exit()
         except:
-            os.exit(0)
+            os._exit(0)
             
     elif choice == "69" or choice.lower() =="dev":
         print_with_color("Developer mode activated!", color=Fore.RED)
