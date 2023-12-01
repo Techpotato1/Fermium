@@ -2,38 +2,20 @@ import datetime
 import os
 import platform
 import random
-import shutil
-import time
+from shutil import os
+from time import strftime
 import webbrowser
 from colorama import Fore, Back, Style
 import keyboard
 import wikipedia
 from requests import get
-import sys
 from getkey import getkey, keys
 from datetime import datetime
 
-name = ""
-choice = ""
-weatherlocation = ""
-wikipediacount = 3
-wikipediachoice = "0"
-contentsofdir = os.listdir(os.getcwd())
+name, choice, weatherlocation, wikipediacount, wikipediachoice, contentsofdir = "", "", "", 3, "", os.listdir(os.getcwd())
 
 print("Loading, please wait...")
-def printoptions():
-    print(
-        """What would you like to do next? \n
-1. Check the time
-2. Check the date
-3. Change the weather location
-4. Check the weather
-5. Change your name
-6. Wikipedia
-7. Exit 
-Dev (use at your own risk)\n
-"""
-    )
+options = ["What would you like to do next?", "1. Check the time", "2. Check the date", "3. Check the weather", "4. Wikipedia", "5. Settings", "6. Exit"]
 
 def clearscreen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -53,15 +35,16 @@ BACKS = [Back.BLACK, Back.RED, Back.GREEN, Back.YELLOW,
 BRIGHTNESS = [Style.DIM, Style.NORMAL, Style.BRIGHT]
 
 def gettime():
-    currenttime = time.strftime("%I:%M %p")
+    currenttime = strftime("%I:%M %p")
     return currenttime
 
-#seconds
+# seconds
 def gettimespecific():
-    currenttime = time.strftime("%I:%M:%S %p")
+    currenttime = strftime("%I:%M:%S %p")
     return currenttime
 
 # calculate pi to a specified limit
+# yay yoinking code!
 def calcPi(limit):
     """
     Prints out the digits of PI
@@ -99,6 +82,7 @@ def calcPi(limit):
             n = nn
             r = nr
 
+# definitely wrote this
 def getweather():
     # base URL
     BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
@@ -175,7 +159,7 @@ def cpi():
             i = 0
 
 # format the date nicely
-date = time.strftime("%A, %B %d, %Y")
+date = strftime("%A, %B %d, %Y")
 currenttime = gettime()
 
 # read name
@@ -229,18 +213,19 @@ if weatherlocation == "":
         with open("userinfo.txt", "r+") as f:
             # again this is stupid
             f.readline()
-            f.write("\n" + weatherlocation)
+            f.write("\n".join(weatherlocation))
     else:
         # dumb solution but works
         weatherlocation = ""
 
 clearscreen()
 # greet user
-print("Hello, " + name + "!")
-print("Today's date is " + date)
-print("The time is " + currenttime)
-while choice != "7":
-    printoptions()
+
+print("".join(["Hello, ", name, "!"]))
+print("".join(["Today's date is ", date]))
+print("".join(["The time is ", currenttime, "\n"]))
+while choice != "6":
+    print('\n'.join(options))
 
     choice = input("Enter your choice: ")
     
@@ -256,7 +241,7 @@ while choice != "7":
                 if not timeold == curtime:
                     timeold = curtime
                     clearscreen()
-                    print("The time is " + timeold + "\nPress 'esc' to exit")
+                    print("".join(["The time is ", timeold, "\nPress 'esc' to exit"]))
         else:
             # this shit better work
             while True:
@@ -266,27 +251,18 @@ while choice != "7":
                 if not timeold == curtime:
                     timeold = curtime
                     clearscreen()
-                    print("The time is " + timeold + "\nPress 'esc' to exit")
+                    print("".join(["The time is ", timeold, "\nPress 'esc' to exit"]))
 
     # check the date
     elif choice == "2" or choice == "date":
         print(date)
-
-    # get weather location
-    elif choice == "3":
-        weatherlocation = input("What is your city? \n")
-        with open("userinfo.txt", "w") as f:
-            f.readline()
-            f.write("\n" + weatherlocation)
-
     # display weather
-    elif choice == "4" or choice == "weather":
+    elif choice == "3" or choice == "weather":
         if weatherlocation == "":
             weatherlocation = input("What is your city? (Zip codes will work) \n")
             with open("userinfo.txt", "r+") as f:
                 f.readline()
-                f.write("\n" + weatherlocation)
-            print('\n')
+                f.write("".join(["\n", weatherlocation]))
             getweather()
             print('\n')
         else:
@@ -294,29 +270,17 @@ while choice != "7":
             print('\n')
 
     # change name
-    elif choice == "5" or choice == "name":
-        name = input("What is your name? \n")
-        # prevent unreadable text due to long names
-        if(len(name) > 1000):
-            print_with_color("Invalid Name!", color=Fore.RED)
-            pass
-        try:
-            with open("userinfo.txt", "w") as f:
-                f.write(name)
-            print_with_color("Name Changed to: " + name, color=Fore.GREEN)
-        except:
-            print_with_color("Invalid Name!", color=Fore.RED)
+    
 
-    elif choice == "6" or choice == "wikipedia":
+    elif choice == "4" or choice == "wikipedia":
         while(wikipediachoice != "3"):
-            print("1. Search Wikipedia \n" + "2. Change sentence count \n3. Back")
+            print("1. Search Wikipedia \n2. Change sentence count \n3. Back")
             wikipediachoice = input("What would you like to do? \n")
             if wikipediachoice == "1":
                 try:
                     clearscreen()
                     searchterm = input(
-                        "Enter a search term: \n"
-                        + '(Use parentheses to denote the type, ex: "Mars (planet)") \n'
+                        "Enter a search term: \n(Use parentheses to denote the type, ex: Mars (planet) \n"
                     )
                     clearscreen()
                     print("Loading!")
@@ -334,7 +298,7 @@ while choice != "7":
                         input("Enter the number of sentences to display: \n")
                     )
                     print_with_color(
-                        "Number of sentences changed to: " + str(wikipediacount),
+                        "".join(["Number of sentences changed to: ",str(wikipediacount)]),
                         color=Fore.GREEN,
                     )
                 except:
@@ -343,12 +307,32 @@ while choice != "7":
                 pass
             else:
                 print_with_color("Invalid number!", color=Fore.RED)
-
+    elif choice == "5" or choice.lower() == "settings":
+        print("1. Change Weather Location \n2. Change Name \n3. Exit")
+        setchoice = input("What would you like to do?\n")
+        if setchoice == "1":
+            weatherlocation = input("What is your city? \n")
+            with open("userinfo.txt", "w") as f:
+                f.readline()
+                f.write("".join(["\n", weatherlocation]))
+        elif setchoice == "2":
+            name = input("What is your name? \n")
+            # prevent unreadable text due to long names
+            if(len(name) > 1000):
+                print_with_color("Name is too long!", color=Fore.RED)
+                pass
+            try:
+                with open("userinfo.txt", "w") as f:
+                    f.write(name)
+                print_with_color("".join(["Name Changed to: ", name]), color=Fore.GREEN)
+            except:
+                print_with_color("Invalid Name!", color=Fore.RED)
+    
     # exit and delete info, if needed
-    elif choice == "7" or choice == "exit":
+    elif choice == "6" or choice == "exit":
         if(deleteafteruse):
             try:
-                shutil.os.remove("userinfo.txt")
+                os.remove("userinfo.txt")
                 print_with_color(
                     "Deleting user info...", color=Fore.RED, 
                 )
@@ -358,27 +342,16 @@ while choice != "7":
                     pass
         clearscreen()
         try:
-            sys.exit()
+            exit()
         except:
-            os._exit(0)
+            os.exit(0)
             
     elif choice == "69" or choice.lower() =="dev":
         print_with_color("Developer mode activated!", color=Fore.RED)
         clearscreen()
         while choice.lower() != "exit" and choice.lower() != "devexit":
-            print(
-                """Developer Options:
-8. Clear the screen
-9. Delete the user info
-10. List the contents of the current directory
-12. Open a URL
-13. Autofill the weather location from IP
-14. Print your public IP address
-16. Generate a random number
-17. Calculate PI
-Devexit
-"""
-            )
+            devops = ['8. Clear the screen', '9. Delete the user info', '10. List the contents of the current directory', '12. Open a URL', '13. Autofill the weather location from IP', '14. Print your public IP address', '15. Generate a random number', '16. Calculate PI']
+            print('\n'.join(devops))
             choice = input("Enter your choice: ")
             clearscreen()
             if choice == "8" or choice == "clear":
@@ -388,7 +361,7 @@ Devexit
             # delete userinfo
             elif choice == "9" or choice == "delete info":
                 try:
-                    shutil.os.remove("userinfo.txt")
+                    os.remove("userinfo.txt")
                     print_with_color(
                         "Deleting user info...", color=Fore.RED, 
                     )
@@ -415,10 +388,11 @@ Devexit
                 if pos >= 0:
                     urlopen = urlopen[:pos]
                 #TODO: Implement default browser detection
-                print_with_color("Opened " + urlopen.capitalize() + " in a new tab", color=Fore.GREEN) 
+                print_with_color("".join(["Opened ", urlopen.capitalize(), " in a new tab"]), color=Fore.GREEN) 
 
             # update location with ip
             # works as long as you don't fuck with the file
+            # breaks if user changes their name
             elif choice == "13" or choice == "ip locate":
                 weatherlocation = getcity()
                 with open("userinfo.txt", "r") as f:
@@ -426,14 +400,14 @@ Devexit
                     wdata[1] = weatherlocation
                 with open("userinfo.txt", "w") as f:
                     f.writelines(wdata)
-                print("Your city is " + weatherlocation + "." + "\n")
+                print("".join(["Your city is ", weatherlocation, ".\n"]))
 
             # display IP
             elif choice == "14" or choice == "ip":
-                print("Your IP address is " + ip_address + "." + "\n")
+                print("".join(["Your IP address is ", ip_address, ".\n"]))
 
             # random num
-            elif choice == "16" or choice == "randomnum":
+            elif choice == "15" or choice == "randomnum":
                 firstbetween = int(input("What is the smallest number? \n"))
                 secondbetween = int(input("What is the largest number? \n"))
                 if firstbetween > secondbetween:
@@ -442,14 +416,9 @@ Devexit
                         color=Fore.RED,
                     )
                 else:
-                    print(
-                        "Your random number is "
-                        + str(random.randint(firstbetween, secondbetween))
-                        + "."
-                        + "\n"
-                    )
+                    print("".join(["Your random number is ", str(random.randint(firstbetween, secondbetween)), ".\n"]))
             # calculate pi to a specified amount
-            elif choice == "17" or choice == "pi":
+            elif choice == "16" or choice == "pi":
                 start = datetime.now()
                 try:
                     cpi()
@@ -460,9 +429,9 @@ Devexit
                 end = datetime.now()
                 # format the time difference nicely
                 time_difference = end - start
-                print("Time taken: " + str(time_difference) + "\n")
+                print("".join(["Time taken: ", str(time_difference), "\n"]))
 
     else:
         print_with_color(
-            "Invalid choice." + "\n", color=Fore.RED
+            "Invalid choice.\n", color=Fore.RED
         )
