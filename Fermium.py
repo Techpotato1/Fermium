@@ -213,7 +213,7 @@ if weatherlocation == "":
         with open("userinfo.txt", "r+") as f:
             # again this is stupid
             f.readline()
-            f.write("\n".join(weatherlocation))
+            f.write("".join(["\n", weatherlocation]))
     else:
         # dumb solution but works
         weatherlocation = ""
