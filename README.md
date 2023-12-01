@@ -1,4 +1,5 @@
-# Revamp-Script
+# Fermium
 
 The long awaited remake of the original Morning Script!
-The original script was getting way to complicated and bloated. A fresh start helped improve the experiecnce.
+
+Greatly improved loadtimes and userexperience, with massive code overhauls to improve readability.
