@@ -11,26 +11,21 @@ import wikipedia
 from requests import get
 from getkey import getkey, keys
 from datetime import datetime
-import subprocess
 
 (
     name,
     choice,
     weatherlocation,
-    wikipediacount,
-    wikipediachoice,
     contentsofdir,
     filename,
-    allowed_characters,
+    ip_address,
 ) = (
     "",
     "",
     "",
-    3,
-    "",
     os.listdir(os.getcwd()),
     "userinfo.txt",
-    set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")
+    get("https://api.ipify.org").text
 )
 
 print("Loading, please wait...")
@@ -60,7 +55,7 @@ def writetoline(line_num, data):
 
     lines[line_num - 1] = f"{data}\n"
 
-    with open(filename, "w") as f:
+    with open(filename, "w", encoding="utf-16") as f:
         f.writelines(lines)
 
 
@@ -190,9 +185,6 @@ def getweather():
         print_with_color("Error in the HTTP request",color=Fore.RED)
         print("Try checking the city name.")
 
-
-ip_address = get("https://api.ipify.org").text
-
 # get the approximate location of the user from their IP address
 def getcity():
     url = "https://ip.city/api.php"
@@ -246,21 +238,19 @@ clearscreen()
 # ask for name
 # userinfo is created, the code should work if no one tampers with the file
 if name == "":
-    name = input("What is your name? \n")
+    name = input("What's your name? (shred/incognito to not save any data)\n")
     name = name.capitalize()
-    if all(char in allowed_characters for char in name):
-        writetoline(1, name)
-    else:
-        print_with_color("Error writing in name, you will have to re-enter it next time you run the program!", color=Fore.RED)
+    writetoline(1, name)
     # remove userinfo
     if name.lower() == "shred" or name.lower() == "incognito":
         deleteafteruse = True
         name = "Anonymous"
-        print_with_color("Incognito mode activated!", color=Fore.RED)
-
+        print_with_color("Settings will not be saved!", color=Fore.RED)
+    elif len(name) > 50:
+        print_with_color("Name is unusually long, prodece with caution", color=Fore.RED)
 
 if weatherlocation == "":
-    wchoice = input("Would you like to autofill the weather location? \nY or N\n")
+    wchoice = input("Would you like to autofill the weather location? (y/n)\n").lower()
     if wchoice == "y" or wchoice == "yes":
         weatherlocation = getcity()
         writetoline(2, weatherlocation)
@@ -270,10 +260,16 @@ clearscreen()
 print(f"Hello, {name}!")
 print(f"Today's date is {date}")
 print(f"The time is {currenttime}\n")
-while choice != "6":
+while True:
     print("\n".join(options))
 
     choice = input("Enter your choice: ")
+    # prevent crashing using invalid charaters 
+    try: 
+        int(choice)
+    except ValueError: 
+        print("Invalid choice", color=Fore.RED) 
+        continue
 
     clearscreen()
 
@@ -306,7 +302,7 @@ while choice != "6":
     elif choice == "3" or choice == "weather":
         if weatherlocation == "":
             weatherlocation = input(
-                "What is your city? (Zip codes will work) \n")
+                "What is your city? Ex: Sacramento, California \n")
             writetoline(2, weatherlocation)
             getweather()
             print("\n")
@@ -314,65 +310,60 @@ while choice != "6":
             getweather()
             print("\n")
 
+        
     # search wikipedia
     elif choice == "4" or choice == "wikipedia":
+        wikipediachoice = ""
+        wikipediacount = 3
         while True:
             print("1. Search Wikipedia \n2. Change sentence count \n3. Back")
             wikipediachoice = input("What would you like to do? \n")
             if wikipediachoice == "1":
                 try:
                     clearscreen()
-                    searchterm = input("Enter a search term: \n(Use parentheses to denote the type," " ex: Mars (planet) \n")
+                    searchterm = input("Enter a search term: \nUse parentheses to denote the type, ex: Mars (planet) \n")
                     clearscreen()
                     print("Loading!")
                     print(wikipedia.summary(searchterm, sentences=wikipediacount,))
                     print("\n")
                 except wikipedia.exceptions.DisambiguationError:
-                    print_with_color("Invalid Search Term!", color=Fore.RED)
-                    print_with_color("Try again!", color=Fore.RED)
-                except:
-                    print_with_color("Unexpected error!", color=Fore.RED)
+                    print_with_color("Try adding a type to your query.", color=Fore.RED)
+                except Exception as e:
+                    print(f"Error: {e}", color=Fore.RED)
             elif wikipediachoice == "2":
                 try:
                     clearscreen()
-                    wikipediacount = int(
-                        input("Enter the number of sentences to display: \n"))
+                    wikipediacount = int(input("Enter the number of sentences to display: \n"))
                     print_with_color(f"Number of sentences changed to: {wikipediacount}", color=Fore.GREEN)
-                except:
-                    print_with_color("Invalid Number!", color=Fore.RED)
+                except ValueError:
+                    print_with_color("Invalid number!", color=Fore.RED)
+                    continue
             elif wikipediachoice == "3":
                 clearscreen()
                 break
             else:
-                print_with_color("Invalid number!", color=Fore.RED)
-                
+                print_with_color("Invalid choice!", color=Fore.RED)
+        
+            
+    # settings
     elif choice == "5" or choice.lower() == "settings":
         print("1. Change Weather Location \n2. Change Name \n3. Delete info \n4. Exit")
         setchoice = input("What would you like to do?\n")
         if setchoice == "1":
-            while True:
-                weatherlocation = input("What is your city? \n")
-                if all(char in allowed_characters for char in name):
-                    writetoline(2, weatherlocation)
-                    break
-                else:
-                    print_with_color("Invalid city!", color=Fore.RED)
+            clearscreen()
+            weatherlocation = input("What is your city? Ex: Sacramento, California\n")
+            writetoline(2, weatherlocation)
         elif setchoice == "2":
-            while True:
-                name = input("What is your name? \n")
-                
-                if all(char in allowed_characters for char in name):
-                    writetoline(1, name)
-                    break
-                else:
-                    print_with_color("Invalid name!", color=Fore.RED)
+            clearscreen()
+            name = input("What is your name? \n")
+            writetoline(1, name)
         elif setchoice == "3":
             try:
                 os.remove(filename)
                 print_with_color("Deleting user info...", color=Fore.RED)
                 print_with_color("Done!", color=Fore.GREEN)
             except Exception as e:
-                print_with_color("Some files failed to delete", color=Fore.RED)
+                print_with_color("Failed to delete!", color=Fore.RED)
                 print_with_color(f"Error: {e}", color=Fore.RED)
                 
 
@@ -390,7 +381,7 @@ while choice != "6":
         clearscreen()
         try:
             exit()
-        except:
+        except Exception:
             os._exit(0)
 
     elif choice == "69" or choice.lower() == "dev":
@@ -476,16 +467,9 @@ while choice != "6":
                 start = datetime.now()
                 try:
                     cpi()
-                    print_with_color(
-                        "Done!",
-                        color=Fore.GREEN,
-                    )
+                    print_with_color("Done!", color=Fore.GREEN)
                 except KeyboardInterrupt:
-                    print_with_color(
-                        "Canceled!",
-                        color=Fore.RED,
-                    )
-                    pass
+                    print_with_color("Canceled!", color=Fore.RED)
                 end = datetime.now()
                 # format the time difference nicely
                 time_difference = end - start
