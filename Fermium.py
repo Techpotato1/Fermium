@@ -3,7 +3,7 @@ import os
 import platform
 import random
 from shutil import os
-from time import strftime, sleep
+from time import strftime
 import webbrowser
 from colorama import Fore, Back, Style
 import keyboard
@@ -19,13 +19,15 @@ from datetime import datetime
     contentsofdir,
     filename,
     ip_address,
+    deleteafteruse
 ) = (
     "",
     "",
     "",
     os.listdir(os.getcwd()),
     "userinfo.txt",
-    get("https://api.ipify.org").text
+    get("https://api.ipify.org").text, 
+    False
 )
 
 print("Loading, please wait...")
@@ -34,29 +36,31 @@ options = [
     "1. Check the time",
     "2. Check the date",
     "3. Check the weather (not precise)",
-    "4. Wikipedia",
-    "5. Settings",
-    "6. Exit",
+    "4. Clear temp files (Windows only)",
+    "5. Wikipedia",
+    "6. Settings",
+    "7. Exit",
 ]
 
 
 def writetoline(line_num, data):
     # create the file if it doesn't exist
-    if not os.path.exists(filename):
-        open(filename, "w").close()
-        
-    # read the file
-    with open(filename, "r") as f:
-        lines = f.readlines()
+    if not deleteafteruse:
+        if not os.path.exists(filename):
+            open(filename, "w").close()
 
-    # ensure the file has enough lines
-    while len(lines) < line_num:
-        lines.append("\n")
+        # read the file
+        with open(filename, "r") as f:
+            lines = f.readlines()
 
-    lines[line_num - 1] = f"{data}\n"
+        # ensure the file has enough lines
+        while len(lines) < line_num:
+            lines.append("\n")
 
-    with open(filename, "w", encoding="utf-16") as f:
-        f.writelines(lines)
+        lines[line_num - 1] = f"{data}\n"
+
+        with open(filename, "w") as f:
+            f.writelines(lines)
 
 
 def clearscreen():
@@ -99,13 +103,12 @@ BRIGHTNESS = [
 ]
 
 def gettime():
-    currenttime = strftime("%I:%M %p")
-    return currenttime
+    return strftime("%I:%M %p")
 
 # seconds
 def gettimespecific():
-    currenttime = strftime("%I:%M:%S %p")
-    return currenttime
+    return strftime("%I:%M:%S %p")
+
 
 # calculate pi to a specified limit
 # yay yoinking code!
@@ -181,7 +184,7 @@ def getweather():
         print(f"Pressure: {pressure}hPa")
         print(f"Weather Report: {report[0]['description']}")
     else:
-        # showing the error message
+        # incorrect city
         print_with_color("Error in the HTTP request",color=Fore.RED)
         print("Try checking the city name.")
 
@@ -200,7 +203,7 @@ def getcity():
         data = response.json()
         city = data["city"]
         region = data["region"]
-    return city + ", " + region
+    return (f"{city}, {region}")
 
 
 # Wrapper function for calculating pi
@@ -220,8 +223,8 @@ def cpi():
             i = 0
 
 # format the date nicely
-date = strftime("%A, %B %d, %Y")
-currenttime = gettime()
+def getdate():
+    return strftime("%A, %B %d, %Y")
 
 # read name
 if os.path.exists(filename):
@@ -231,23 +234,20 @@ if os.path.exists(filename):
         f.readline()
         weatherlocation = f.readline().strip()
 
-deleteafteruse = False
-
 clearscreen()
 
 # ask for name
 # userinfo is created, the code should work if no one tampers with the file
 if name == "":
-    name = input("What's your name? (shred/incognito to not save any data)\n")
-    name = name.capitalize()
-    writetoline(1, name)
-    # remove userinfo
-    if name.lower() == "shred" or name.lower() == "incognito":
+    name = input("What's your name? (shred/incognito to not save any data)\n").capitalize()
+    # don't write userinfo
+    if name == "Shred" or name == "Incognito":
         deleteafteruse = True
         name = "Anonymous"
         print_with_color("Settings will not be saved!", color=Fore.RED)
     elif len(name) > 50:
         print_with_color("Name is unusually long, prodece with caution", color=Fore.RED)
+    writetoline(1, name)
 
 if weatherlocation == "":
     wchoice = input("Would you like to autofill the weather location? (y/n)\n").lower()
@@ -258,8 +258,9 @@ if weatherlocation == "":
 clearscreen()
 # greet user
 print(f"Hello, {name}!")
-print(f"Today's date is {date}")
-print(f"The time is {currenttime}\n")
+print(f"Today's date is {getdate()}")
+print(f"The time is {gettime()}\n")
+
 while True:
     print("\n".join(options))
 
@@ -283,10 +284,12 @@ while True:
                     timeold = curtime
                     clearscreen()
                     print(f"The time is {timeold} \nPress 'esc' to exit")
+            print("\n")
         else:
             # this shit better work
             while True:
                 if getkey(False) == keys.ESCAPE:
+                    print("\n")
                     break
                 curtime = gettimespecific()
                 if not timeold == curtime:
@@ -298,6 +301,7 @@ while True:
     elif choice == "2" or choice == "date":
         # prevent against changing at midnight
         print(strftime("%A, %B %d, %Y"))
+        print("\n")
     # display weather
     elif choice == "3" or choice == "weather":
         if weatherlocation == "":
@@ -309,10 +313,54 @@ while True:
         else:
             getweather()
             print("\n")
+                
+    elif choice == "4" or choice == "temp":
+        # specify the paths to the temporary folders
+        win_temp_path = 'C:\\Windows\\Temp'
+        user_temp_path = os.path.join(os.environ['LOCALAPPDATA'], 'Temp')
+        # store file deletion errors to a list
+        failed_del = []
 
+        # delete files and folders recursively
+        def delete_files_and_folders(folder_path):
+
+            # traverse the folder in reverse order
+            for root, dirs, files in os.walk(folder_path, topdown=False):
+                # delete files in the current directory
+                for file in files:
+                    try:
+                        os.remove(os.path.join(root, file))
+                    except Exception as e:
+                        failed_del.append(str(e))
+
+                # delete empty directories
+                for dir_name in dirs:
+                    try:
+                        os.rmdir(os.path.join(root, dir_name))
+                    except Exception as e:
+                        failed_del.append(str(e))
+
+        # initial size of the temp folders
+        initial_win_temp_size = sum(os.path.getsize(os.path.join(win_temp_path, f)) for f in os.listdir(win_temp_path) if os.path.isfile(os.path.join(win_temp_path, f)))
+        initial_user_temp_size = sum(os.path.getsize(os.path.join(user_temp_path, f)) for f in os.listdir(user_temp_path) if os.path.isfile(os.path.join(user_temp_path, f)))
+
+        # continue deleting files and folders until no more can be deleted
+        delete_files_and_folders(win_temp_path)
+        delete_files_and_folders(user_temp_path)
         
+        # final size of the temp folders
+        final_win_temp_size = sum(os.path.getsize(os.path.join(win_temp_path, f)) for f in os.listdir(win_temp_path) if os.path.isfile(os.path.join(win_temp_path, f)))
+        final_user_temp_size = sum(os.path.getsize(os.path.join(user_temp_path, f)) for f in os.listdir(user_temp_path) if os.path.isfile(os.path.join(user_temp_path, f)))
+
+        # difference in megabytes
+        total_size_difference_mb = ((initial_win_temp_size - final_win_temp_size) + (initial_user_temp_size - final_user_temp_size)) / (1024 * 1024)
+
+        print_with_color(f"{round(total_size_difference_mb, 1)} MB was removed!\n", color=Fore.GREEN)
+        if input("Would you like to see the undeleted files? (y/n)\n") == "y":
+            print("\n".join(failed_del) + "\n")
+            
     # search wikipedia
-    elif choice == "4" or choice == "wikipedia":
+    elif choice == "5" or choice == "wikipedia":
         wikipediachoice = ""
         wikipediacount = 3
         while True:
@@ -346,7 +394,7 @@ while True:
         
             
     # settings
-    elif choice == "5" or choice.lower() == "settings":
+    elif choice == "6" or choice.lower() == "settings":
         print("1. Change Weather Location \n2. Change Name \n3. Delete info \n4. Exit")
         setchoice = input("What would you like to do?\n")
         if setchoice == "1":
@@ -368,27 +416,11 @@ while True:
                 
 
     # exit and delete info, if needed
-    elif choice == "6" or choice == "exit":
-        if deleteafteruse:
-            try:
-                os.remove(filename)
-                print_with_color("Deleting user info...", color=Fore.RED)
-                print_with_color("Done!", color=Fore.GREEN)
-            except Exception as e:
-                print_with_color("Some files failed to delete", color=Fore.RED)
-                print_with_color(f"Error: {e}", color=Fore.RED,)
-                sleep(2)
-        clearscreen()
-        try:
-            exit()
-        except Exception:
-            os._exit(0)
+    elif choice == "7" or choice == "exit":
+        os._exit(0)
 
     elif choice == "69" or choice.lower() == "dev":
-        print_with_color(
-            "Developer mode activated!",
-            color=Fore.RED,
-        )
+        print_with_color("Developer mode activated!", color=Fore.RED)
         clearscreen()
         while choice.lower() != "exit" and choice.lower() != "devexit":
             devops = [
@@ -455,13 +487,9 @@ while True:
                 firstbetween = int(input("What is the smallest number? \n"))
                 secondbetween = int(input("What is the largest number? \n"))
                 if firstbetween > secondbetween:
-                    print_with_color(
-                        "The first number must be smaller than the second number. \n",
-                        color=Fore.RED,
-                    )
+                    print_with_color("The first number must be smaller than the second number. \n", color=Fore.RED)
                 else:
-                    print(f"Your random number is {
-                          str(random.randint(firstbetween, secondbetween))} .\n")
+                    print(f"Your random number is {str(random.randint(firstbetween, secondbetween))} .\n")
             # calculate pi to a specified amount
             elif choice == "16" or choice == "pi":
                 start = datetime.now()
