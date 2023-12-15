@@ -1,0 +1,6 @@
+wheel
+colorama
+requests
+wikipedia
+keyboard
+getkey
