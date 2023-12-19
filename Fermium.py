@@ -11,6 +11,7 @@ import wikipedia
 from requests import get
 from getkey import getkey, keys
 from datetime import datetime
+import random
 
 (
     name,
@@ -151,7 +152,7 @@ def calcPi(limit):
 
 
 # definitely wrote this
-def getweather():
+def getweather(temp):
     # base URL
     BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
     # City Name
@@ -178,11 +179,15 @@ def getweather():
         temperature = (temperature * (9 / 5)) - 459.67
         # round the temperature to 2 decimal places
         temperature = round(temperature)
-        print(f"{CITY:-^30}")
-        print(f"Temperature: {temperature}°f")
-        print(f"Humidity: {humidity}%")
-        print(f"Pressure: {pressure}hPa")
-        print(f"Weather Report: {report[0]['description']}")
+        weather_string = f"{CITY:-^30}\n"
+        weather_string += f"Temperature: {temperature}°F\n"
+        weather_string += f"Humidity: {humidity}%\n"
+        weather_string += f"Pressure: {pressure}hPa\n"
+        weather_string += f"Weather Report: {report[0]['description']}"
+        if temp == True:
+            return temperature
+        else:
+            return weather_string
     else:
         # incorrect city
         print_with_color("Error in the HTTP request",color=Fore.RED)
@@ -257,9 +262,14 @@ if weatherlocation == "":
 
 clearscreen()
 # greet user
-print(f"Hello, {name}!")
-print(f"Today's date is {getdate()}")
-print(f"The time is {gettime()}\n")
+if random.randint(0, 10) == 0:
+    print("Good morning and welcome to the Black Mesa Transit System.")
+    print(f"The time is {gettime()}. Current topside temperature is {getweather(True)} degrees. \nThe Black Mesa compound is maintained at a pleasant 68 degrees at all times.\n")
+    
+else:
+    print(f"Hello, {name}!")
+    print(f"Today's date is {getdate()}")
+    print(f"The time is {gettime()}\n")
 
 while True:
     print("\n".join(options))
@@ -305,13 +315,12 @@ while True:
     # display weather
     elif choice == "3" or choice == "weather":
         if weatherlocation == "":
-            weatherlocation = input(
-                "What is your city? Ex: Sacramento, California \n")
+            weatherlocation = input("What is your city? Ex: Sacramento, California \n")
             writetoline(2, weatherlocation)
-            getweather()
+            print(getweather(False))
             print("\n")
         else:
-            getweather()
+            print(getweather(False))
             print("\n")
                 
     elif choice == "4" or choice == "temp":
@@ -395,7 +404,7 @@ while True:
             
     # settings
     elif choice == "6" or choice.lower() == "settings":
-        print("1. Change Weather Location \n2. Change Name \n3. Delete info \n4. Exit")
+        print("1. Change Weather Location \n2. Change Name \n3. Delete info \n4. Back")
         setchoice = input("What would you like to do?\n")
         if setchoice == "1":
             clearscreen()
@@ -413,6 +422,7 @@ while True:
             except Exception as e:
                 print_with_color("Failed to delete!", color=Fore.RED)
                 print_with_color(f"Error: {e}", color=Fore.RED)
+        clearscreen()
                 
 
     # exit and delete info, if needed
