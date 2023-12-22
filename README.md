@@ -18,4 +18,4 @@ The heart of Fermium lies in its codebase. Whether you're a seasoned developer o
 
 ### • **Don't take any of this seriously** 🍋
 
-It's just a small passion project.
+It's just a small passion project, and yes, I used AI to generate it.
