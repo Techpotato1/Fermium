@@ -1,6 +1,6 @@
 # Fermium
 
-**Welcome to Fermium!** 🚀 This is the remake of the original Morning Script, designed to elevate your experience with significantly improved load times and user interface enhancements.
+**Welcome to Fermium!** This is the remake of the original Morning Script, designed to elevate your experience with significantly improved load times and user interface enhancements.
 
 ## What's New?
 
