@@ -3,9 +3,9 @@ import os
 import platform
 import random
 from shutil import os
-from time import strftime
+from time import strftime, sleep
 import webbrowser
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 import keyboard
 import wikipedia
 from requests import get
@@ -75,34 +75,6 @@ def print_with_color(s, color=Fore.WHITE, brightness=Style.NORMAL, **kwargs):
     """
     print(f"{brightness}{color}{s}{Style.RESET_ALL}", **kwargs)
 
-FORES = [
-    Fore.BLACK,
-    Fore.RED,
-    Fore.GREEN,
-    Fore.YELLOW,
-    Fore.BLUE,
-    Fore.MAGENTA,
-    Fore.CYAN,
-    Fore.WHITE,
-]
-# all available background colors
-BACKS = [
-    Back.BLACK,
-    Back.RED,
-    Back.GREEN,
-    Back.YELLOW,
-    Back.BLUE,
-    Back.MAGENTA,
-    Back.CYAN,
-    Back.WHITE,
-]
-# brightness values
-BRIGHTNESS = [
-    Style.DIM,
-    Style.NORMAL,
-    Style.BRIGHT,
-]
-
 def gettime():
     return strftime("%I:%M %p")
 
@@ -152,15 +124,9 @@ def calcPi(limit):
 
 
 # definitely wrote this
-def getweather(temp):
-    # base URL
-    BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
-    # City Name
-    CITY = weatherlocation
-    # updating the URL
-    URL = BASE_URL + "q=" + CITY + "&appid=" + "9942f72d8fddd917dc980f5d4c6d8b1f"
+def getweather(temp = False, temp_high = False):
     # HTTP request
-    response = get(URL)
+    response = get("https://api.openweathermap.org/data/2.5/weather?" + "q=" + weatherlocation + "&units=imperial" + "&appid=" + "9942f72d8fddd917dc980f5d4c6d8b1f")
     # checking the status code of the request
     if response.status_code == 200:
         # getting data in the json format
@@ -168,30 +134,28 @@ def getweather(temp):
         # getting the main dict block
         main = data["main"]
         # getting temperature
-        temperature = main["temp"]
+        temperature = int(main["temp"])
+        # temp max and min
+        mintemp = int(main["temp_min"])
+        maxtemp = int(main["temp_max"])
         # getting the humidity
         humidity = main["humidity"]
         # getting the pressure
         pressure = main["pressure"]
         # weather report
         report = data["weather"]
-        # convert the temperature to fahrenheit
-        temperature = (temperature * (9 / 5)) - 459.67
-        # round the temperature to 2 decimal places
-        temperature = round(temperature)
-        weather_string = f"{CITY:-^30}\n"
-        weather_string += f"Temperature: {temperature}°F\n"
-        weather_string += f"Humidity: {humidity}%\n"
-        weather_string += f"Pressure: {pressure}hPa\n"
-        weather_string += f"Weather Report: {report[0]['description']}"
         if temp == True:
             return temperature
+        if temp_high == True:
+            return maxtemp
         else:
-            return weather_string
+            return f"{weatherlocation:-^30}\nTemperature: {temperature}°F\nHigh/Low: {maxtemp}/{mintemp}°F\nHumidity: {humidity}%\nPressure: {pressure}hPa\nWeather Report: {report[0]['description']}\n{"-" * 30}"
     else:
         # incorrect city
-        print_with_color("Error in the HTTP request",color=Fore.RED)
-        print("Try checking the city name.")
+        if weatherlocation == "":
+            return "No weather data!"
+        else:
+            return f"Error in the HTTP request, Status Code: {response.status_code}"
 
 # get the approximate location of the user from their IP address
 def getcity():
@@ -264,28 +228,21 @@ clearscreen()
 # greet user
 if random.randint(0, 10) == 0:
     print("Good morning and welcome to the Black Mesa Transit System.")
-    print(f"The time is {gettime()}. Current topside temperature is {getweather(True)} degrees. \nThe Black Mesa compound is maintained at a pleasant 68 degrees at all times.\n")
+    print(f"The time is {gettime()}. Current topside temperature is {getweather(True)} degrees with an estimated high of {getweather(False, True)}.\nThe Black Mesa compound is maintained at a pleasant 68 degrees at all times.")
     
 else:
     print(f"Hello, {name}!")
     print(f"Today's date is {getdate()}")
-    print(f"The time is {gettime()}\n")
+    print(f"The time is {gettime()}")
 
 while True:
-    print("\n".join(options))
+    print("\n" + "\n".join(options))
 
     choice = input("Enter your choice: ")
-    # prevent crashing using invalid charaters 
-    try: 
-        int(choice)
-    except ValueError: 
-        print("Invalid choice", color=Fore.RED) 
-        continue
-
     clearscreen()
 
     # check the time
-    if choice == "1" or choice == "time": 
+    if choice == "1": 
         timeold = ""
         if platform.system() == "Windows":
             while not keyboard.is_pressed("esc"):
@@ -294,7 +251,6 @@ while True:
                     timeold = curtime
                     clearscreen()
                     print(f"The time is {timeold} \nPress 'esc' to exit")
-            print("\n")
         else:
             # this shit better work
             while True:
@@ -308,22 +264,19 @@ while True:
                     print(f"The time is {timeold} \nPress 'esc' to exit")
 
     # check the date
-    elif choice == "2" or choice == "date":
+    elif choice == "2":
         # prevent against changing at midnight
         print(strftime("%A, %B %d, %Y"))
-        print("\n")
     # display weather
-    elif choice == "3" or choice == "weather":
+    elif choice == "3":
         if weatherlocation == "":
             weatherlocation = input("What is your city? Ex: Sacramento, California \n")
             writetoline(2, weatherlocation)
-            print(getweather(False))
-            print("\n")
+            print(getweather())
         else:
-            print(getweather(False))
-            print("\n")
+            print(getweather())
                 
-    elif choice == "4" or choice == "temp":
+    elif choice == "4":
         # specify the paths to the temporary folders
         win_temp_path = 'C:\\Windows\\Temp'
         user_temp_path = os.path.join(os.environ['LOCALAPPDATA'], 'Temp')
@@ -364,12 +317,15 @@ while True:
         # difference in megabytes
         total_size_difference_mb = ((initial_win_temp_size - final_win_temp_size) + (initial_user_temp_size - final_user_temp_size)) / (1024 * 1024)
 
-        print_with_color(f"{round(total_size_difference_mb, 1)} MB was removed!\n", color=Fore.GREEN)
+        print_with_color(f"{round(total_size_difference_mb, 1)} MB was removed!", color=Fore.GREEN)
+        print("It is recommended to run this function with administrator privileges. If you didn't do that, you might not be getting the best results.")
         if input("Would you like to see the undeleted files? (y/n)\n") == "y":
-            print("\n".join(failed_del) + "\n")
+            print("\n".join(failed_del))
+        else:
+            clearscreen()
             
     # search wikipedia
-    elif choice == "5" or choice == "wikipedia":
+    elif choice == "5":
         wikipediachoice = ""
         wikipediacount = 3
         while True:
@@ -403,8 +359,8 @@ while True:
         
             
     # settings
-    elif choice == "6" or choice.lower() == "settings":
-        print("1. Change Weather Location \n2. Change Name \n3. Delete info \n4. Back")
+    elif choice == "6":
+        print("1. Change Weather Location \n2. Change Name \n3. Delete info \n4. Autofill weather location from IP \n5. Back")
         setchoice = input("What would you like to do?\n")
         if setchoice == "1":
             clearscreen()
@@ -422,14 +378,19 @@ while True:
             except Exception as e:
                 print_with_color("Failed to delete!", color=Fore.RED)
                 print_with_color(f"Error: {e}", color=Fore.RED)
+        elif setchoice == "4":
+            writetoline(2, getcity())
+            clearscreen()
+            print(f"Your city is {weatherlocation}.")
+            sleep(3)
         clearscreen()
                 
 
     # exit and delete info, if needed
-    elif choice == "7" or choice == "exit":
+    elif choice == "7":
         os._exit(0)
 
-    elif choice == "69" or choice.lower() == "dev":
+    elif choice == "69":
         print_with_color("Developer mode activated!", color=Fore.RED)
         clearscreen()
         while choice.lower() != "exit" and choice.lower() != "devexit":
@@ -437,7 +398,6 @@ while True:
                 "8. Clear the screen",
                 "10. List the contents of the current directory",
                 "12. Open a URL",
-                "13. Autofill the weather location from IP",
                 "14. Print your public IP address",
                 "15. Generate a random number",
                 "16. Calculate PI",
@@ -445,12 +405,12 @@ while True:
             print("\n".join(devops))
             choice = input("Enter your choice: ")
             clearscreen()
-            if choice == "8" or choice == "clear":
+            if choice == "8":
                 print("Clearing screen...")
                 clearscreen()
 
             # list the contents of the current directory
-            elif choice == "10" or choice == "list current dir":
+            elif choice == "10":
                 print("Contents of the current directory: \n")
                 for i in contentsofdir:
                     print(i)
@@ -458,42 +418,22 @@ while True:
 
             # ask the user what url they want to open
             # somewhat broken, website detection is janky
-            elif choice == "12" or choice == "open url":
+            elif choice == "12":
                 urlopen = input("What is the url you want to open? \n")
                 webbrowser.open_new("https://" + urlopen)
                 pos = urlopen.rfind(".")
                 if pos >= 0:
                     urlopen = urlopen[:pos]
-                # TODO: Implement default browser detection
-                print_with_color(
-                    f"Opened {urlopen.capitalize()} in a new tab",
-                    color=Fore.GREEN,
-                )
-
-            # update location with ip
-            # works as long as you don't fuck with the file
-            # breaks if user changes their name
-            elif choice == "13" or choice == "ip locate":
-                weatherlocation = getcity()
-                with open(
-                    filename,
-                    "r",
-                ) as f:
-                    wdata = f.readlines()
-                    wdata[1] = weatherlocation
-                with open(
-                    filename,
-                    "w",
-                ) as f:
-                    f.writelines(wdata)
-                print(f"Your city is {weatherlocation}.\n")
+                print_with_color(f"Opened {urlopen} in a new tab", color=Fore.GREEN)
+                if "e621" in urlopen:
+                    print_with_color("You sly dog ;)", color=Fore.GREEN)
 
             # display IP
-            elif choice == "14" or choice == "ip":
+            elif choice == "14":
                 print(f"Your IP address is {ip_address}.\n")
 
             # random num
-            elif choice == "15" or choice == "randomnum":
+            elif choice == "15":
                 firstbetween = int(input("What is the smallest number? \n"))
                 secondbetween = int(input("What is the largest number? \n"))
                 if firstbetween > secondbetween:
@@ -501,7 +441,7 @@ while True:
                 else:
                     print(f"Your random number is {str(random.randint(firstbetween, secondbetween))} .\n")
             # calculate pi to a specified amount
-            elif choice == "16" or choice == "pi":
+            elif choice == "16":
                 start = datetime.now()
                 try:
                     cpi()
@@ -514,7 +454,4 @@ while True:
                 print(f"Time taken: {str(time_difference)}\n")
 
     else:
-        print_with_color(
-            "Invalid choice.\n",
-            color=Fore.RED,
-        )
+        print_with_color("Invalid choice.", color=Fore.RED)
