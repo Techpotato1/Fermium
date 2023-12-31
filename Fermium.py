@@ -117,7 +117,7 @@ def calcPi(limit):
             r = nr
 
 
-# definitely wrote this
+# definitely wrote this, however I did modify substantially
 def getweather(temp = False, temp_high = False):
     # HTTP request
     response = get("https://api.openweathermap.org/data/2.5/weather?" + "q=" + weatherlocation + "&units=imperial" + "&appid=" + "9942f72d8fddd917dc980f5d4c6d8b1f")
