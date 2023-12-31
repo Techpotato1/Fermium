@@ -1,4 +1,3 @@
-import datetime
 import os
 import platform
 import random
@@ -11,7 +10,7 @@ import wikipedia
 from requests import get
 from getkey import getkey, keys
 from datetime import datetime
-import random
+import configparser
 
 (
     name,
@@ -20,15 +19,17 @@ import random
     contentsofdir,
     filename,
     ip_address,
-    deleteafteruse
+    deleteafteruse,
+    config
 ) = (
     "",
     "",
     "",
     os.listdir(os.getcwd()),
-    "userinfo.txt",
+    "userinfo.ini",
     get("https://api.ipify.org").text, 
-    False
+    False, 
+    configparser.ConfigParser()
 )
 
 print("Loading, please wait...")
@@ -37,36 +38,29 @@ options = [
     "1. Check the time",
     "2. Check the date",
     "3. Check the weather (not precise)",
-    "4. Clear temp files (Windows only)",
+    "4. Clear temp files",
     "5. Wikipedia",
     "6. Settings",
     "7. Exit",
 ]
 
+# TODO: clear temp files in linux
+# remove windows only features
+if not os.name == "nt":
+    del options[4]
 
-def writetoline(line_num, data):
-    # create the file if it doesn't exist
+def writetoline(key, data_to_write):
     if not deleteafteruse:
-        if not os.path.exists(filename):
-            open(filename, "w").close()
-
-        # read the file
-        with open(filename, "r") as f:
-            lines = f.readlines()
-
-        # ensure the file has enough lines
-        while len(lines) < line_num:
-            lines.append("\n")
-
-        lines[line_num - 1] = f"{data}\n"
-
-        with open(filename, "w") as f:
-            f.writelines(lines)
-
+        config["Settings"][key] = data_to_write
+        with open(filename, 'w') as configfile:
+            config.write(configfile)
+            
+def readfile(data):
+    config.read(filename)
+    return config["Settings"][data]
 
 def clearscreen():
     os.system("cls" if os.name == "nt" else "clear")
-
 
 # print color to the terminal
 def print_with_color(s, color=Fore.WHITE, brightness=Style.NORMAL, **kwargs):
@@ -149,7 +143,7 @@ def getweather(temp = False, temp_high = False):
         if temp_high == True:
             return maxtemp
         else:
-            return f"{weatherlocation:-^30}\nTemperature: {temperature}°F\nHigh/Low: {maxtemp}/{mintemp}°F\nHumidity: {humidity}%\nPressure: {pressure}hPa\nWeather Report: {report[0]['description']}\n{"-" * 30}"
+            return f"{weatherlocation:-^32}\nTemperature: {temperature}°F\nHigh/Low: {maxtemp}/{mintemp}°F\nHumidity: {humidity}%\nPressure: {pressure}hPa\nWeather Report: {report[0]['description']}\n{'-' * 32}"
     else:
         # incorrect city
         if weatherlocation == "":
@@ -197,11 +191,12 @@ def getdate():
 
 # read name
 if os.path.exists(filename):
-    with open(filename, "r") as f:
-        name = f.readline().strip()
-    with open(filename, "r") as f:
-        f.readline()
-        weatherlocation = f.readline().strip()
+    name = readfile("name")
+    weatherlocation = readfile("weather_location")
+else:
+    config["Settings"] = {"name" : "", "weather_location" : ""}
+    with open(filename, 'w') as configfile:
+        config.write(configfile)
 
 clearscreen()
 
@@ -216,15 +211,16 @@ if name == "":
         print_with_color("Settings will not be saved!", color=Fore.RED)
     elif len(name) > 50:
         print_with_color("Name is unusually long, prodece with caution", color=Fore.RED)
-    writetoline(1, name)
+    writetoline("name", name)
 
 if weatherlocation == "":
     wchoice = input("Would you like to autofill the weather location? (y/n)\n").lower()
     if wchoice == "y" or wchoice == "yes":
         weatherlocation = getcity()
-        writetoline(2, weatherlocation)
+        writetoline("weather_location", weatherlocation)
 
 clearscreen()
+
 # greet user
 if random.randint(0, 10) == 0:
     print("Good morning and welcome to the Black Mesa Transit System.")
@@ -271,7 +267,7 @@ while True:
     elif choice == "3":
         if weatherlocation == "":
             weatherlocation = input("What is your city? Ex: Sacramento, California \n")
-            writetoline(2, weatherlocation)
+            writetoline("weather_location", weatherlocation)
             print(getweather())
         else:
             print(getweather())
@@ -365,11 +361,11 @@ while True:
         if setchoice == "1":
             clearscreen()
             weatherlocation = input("What is your city? Ex: Sacramento, California\n")
-            writetoline(2, weatherlocation)
+            writetoline("weather_location", weatherlocation)
         elif setchoice == "2":
             clearscreen()
             name = input("What is your name? \n")
-            writetoline(1, name)
+            writetoline("name", name)
         elif setchoice == "3":
             try:
                 os.remove(filename)
@@ -379,7 +375,7 @@ while True:
                 print_with_color("Failed to delete!", color=Fore.RED)
                 print_with_color(f"Error: {e}", color=Fore.RED)
         elif setchoice == "4":
-            writetoline(2, getcity())
+            writetoline("weather_location", getcity())
             clearscreen()
             print(f"Your city is {weatherlocation}.")
             sleep(3)
