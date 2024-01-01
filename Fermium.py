@@ -60,7 +60,7 @@ def readfile(data):
     return config["Settings"][data]
 
 def clearscreen():
-    os.system("cls" if os.name == "nt" else "clear")
+    print("\033[2J\033[H", end="", flush=True)
 
 # print color to the terminal
 def print_with_color(s, color=Fore.WHITE, brightness=Style.NORMAL, **kwargs):

@@ -1,3 +1,4 @@
 keyboard
 wikipedia
 get-key
+colorama
