@@ -1,4 +1,4 @@
 keyboard
 wikipedia
 get-key
-colorama
+rich

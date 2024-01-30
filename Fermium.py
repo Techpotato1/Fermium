@@ -4,7 +4,7 @@ import random
 from shutil import os
 from time import strftime, sleep
 import webbrowser
-from colorama import Fore, Style
+from rich import print
 import keyboard
 import wikipedia
 from requests import get
@@ -60,14 +60,7 @@ def readfile(data):
     return config["Settings"][data]
 
 def clearscreen():
-    print("\033[2J\033[H", end="", flush=True)
-
-# print color to the terminal
-def print_with_color(s, color=Fore.WHITE, brightness=Style.NORMAL, **kwargs):
-    """Utility function wrapping the regular `print()` function
-    but with colors and brightness
-    """
-    print(f"{brightness}{color}{s}{Style.RESET_ALL}", **kwargs)
+    print("\033c", end="", flush=True)
 
 def gettime():
     return strftime("%I:%M %p")
@@ -143,7 +136,7 @@ def getweather(temp = False, temp_high = False):
         if temp_high == True:
             return maxtemp
         else:
-            return f"{weatherlocation:-^32}\nTemperature: {temperature}°F\nHigh/Low: {maxtemp}/{mintemp}°F\nHumidity: {humidity}%\nPressure: {pressure}hPa\nWeather Report: {report[0]['description']}\n{'-' * 32}"
+            return f"{weatherlocation:-^32}\nTemperature: {temperature}°F\nHigh/Low: {maxtemp}/{mintemp}°F\nHumidity: {humidity}%\nPressure: {pressure}hPa\nWeather Report: {str(report[0]['description']).capitalize()}\n{'-' * 32}"
     else:
         # incorrect city
         if weatherlocation == "":
@@ -208,9 +201,9 @@ if name == "":
     if name == "Shred" or name == "Incognito":
         deleteafteruse = True
         name = "Anonymous"
-        print_with_color("Settings will not be saved!", color=Fore.RED)
+        print("[red]Settings will not be saved![/red]")
     elif len(name) > 50:
-        print_with_color("Name is unusually long, prodece with caution", color=Fore.RED)
+        print("[red]Name is unusually long, prodece with caution[/red]")
     writetoline("name", name)
 
 if weatherlocation == "":
@@ -233,7 +226,6 @@ else:
 
 while True:
     print("\n" + "\n".join(options))
-
     choice = input("Enter your choice: ")
     clearscreen()
 
@@ -313,7 +305,7 @@ while True:
         # difference in megabytes
         total_size_difference_mb = ((initial_win_temp_size - final_win_temp_size) + (initial_user_temp_size - final_user_temp_size)) / (1024 * 1024)
 
-        print_with_color(f"{round(total_size_difference_mb, 1)} MB was removed!", color=Fore.GREEN)
+        print(f"[green]{round(total_size_difference_mb, 1)} MB was removed![/green]")
         print("It is recommended to run this function with administrator privileges. If you didn't do that, you might not be getting the best results.")
         if input("Would you like to see the undeleted files? (y/n)\n") == "y":
             print("\n".join(failed_del))
@@ -336,22 +328,22 @@ while True:
                     print(wikipedia.summary(searchterm, sentences=wikipediacount,))
                     print("\n")
                 except wikipedia.exceptions.DisambiguationError:
-                    print_with_color("Try adding a type to your query.", color=Fore.RED)
+                    print("[red]Try adding a type to your query.[/red]")
                 except Exception as e:
-                    print(f"Error: {e}", color=Fore.RED)
+                    print(f"[red]Error:[/red] {e}")
             elif wikipediachoice == "2":
                 try:
                     clearscreen()
                     wikipediacount = int(input("Enter the number of sentences to display: \n"))
-                    print_with_color(f"Number of sentences changed to: {wikipediacount}", color=Fore.GREEN)
+                    print(f"[red]Number of sentences changed to: {wikipediacount}[/red]")
                 except ValueError:
-                    print_with_color("Invalid number!", color=Fore.RED)
+                    print("[red]Invalid number![/red]")
                     continue
             elif wikipediachoice == "3":
                 clearscreen()
                 break
             else:
-                print_with_color("Invalid choice!", color=Fore.RED)
+                print("[red]Invalid choice![/red]")
         
             
     # settings
@@ -369,25 +361,24 @@ while True:
         elif setchoice == "3":
             try:
                 os.remove(filename)
-                print_with_color("Deleting user info...", color=Fore.RED)
-                print_with_color("Done!", color=Fore.GREEN)
+                print("[red]Deleting user info...[/red]")
+                print("[red]Done![/red]")
             except Exception as e:
-                print_with_color("Failed to delete!", color=Fore.RED)
-                print_with_color(f"Error: {e}", color=Fore.RED)
+                print("[red]Failed to delete![/red]")
+                print(f"[red]Error:[/red] {e}")
         elif setchoice == "4":
             writetoline("weather_location", getcity())
             clearscreen()
-            print(f"Your city is {weatherlocation}.")
+            print(f"Your city is {getcity()}.")
             sleep(3)
         clearscreen()
                 
-
-    # exit and delete info, if needed
+    # exit
     elif choice == "7":
         os._exit(0)
 
     elif choice == "69":
-        print_with_color("Developer mode activated!", color=Fore.RED)
+        print("[red]Developer mode activated![/red]")
         clearscreen()
         while choice.lower() != "exit" and choice.lower() != "devexit":
             devops = [
@@ -420,9 +411,9 @@ while True:
                 pos = urlopen.rfind(".")
                 if pos >= 0:
                     urlopen = urlopen[:pos]
-                print_with_color(f"Opened {urlopen} in a new tab", color=Fore.GREEN)
+                print(f"[green]Opened[/green] {urlopen} [green]in a new tab[/green]")
                 if "e621" in urlopen:
-                    print_with_color("You sly dog ;)", color=Fore.GREEN)
+                    print("You sly dog ;)")
 
             # display IP
             elif choice == "14":
@@ -433,7 +424,7 @@ while True:
                 firstbetween = int(input("What is the smallest number? \n"))
                 secondbetween = int(input("What is the largest number? \n"))
                 if firstbetween > secondbetween:
-                    print_with_color("The first number must be smaller than the second number. \n", color=Fore.RED)
+                    print("[red]The first number must be [bold]smaller[/bold] than the second number.[/red]\n")
                 else:
                     print(f"Your random number is {str(random.randint(firstbetween, secondbetween))} .\n")
             # calculate pi to a specified amount
@@ -441,13 +432,13 @@ while True:
                 start = datetime.now()
                 try:
                     cpi()
-                    print_with_color("Done!", color=Fore.GREEN)
+                    print("[green]Done![/green]")
                 except KeyboardInterrupt:
-                    print_with_color("Canceled!", color=Fore.RED)
+                    print("[red]Canceled![/red]")
                 end = datetime.now()
                 # format the time difference nicely
                 time_difference = end - start
                 print(f"Time taken: {str(time_difference)}\n")
 
     else:
-        print_with_color("Invalid choice.", color=Fore.RED)
+        print("[red]Invalid choice.[/red]")
