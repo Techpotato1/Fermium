@@ -18,6 +18,7 @@ filename = "userinfo.ini"
 ip_address = get("https://api.ipify.org").text
 config = configparser.ConfigParser()
 
+# get cmd arguments 
 parser = argparse.ArgumentParser()
 parser.add_argument('-a', '--noauto', action='store_true', help='turn off the autofill of certain data')
 parser.add_argument('-p', '--portable', action='store_true', help='don\'t store data')
@@ -28,7 +29,7 @@ if args.delete:
     try:
         os.remove(filename)
     except FileNotFoundError:
-        print("No userfile detected!")
+        print("[red]No userfile detected![/red]")
 
 print("Loading, please wait...")
 options = [
@@ -67,48 +68,8 @@ def gettime():
 def gettimespecific():
     return strftime("%I:%M:%S %p")
 
-
-# calculate pi to a specified limit
-# yay yoinking code!
-def calcPi(limit):
-    """
-    Prints out the digits of PI
-    until it reaches the given limit
-    """
-
-    (q,r,t,k,n,l,) = (1, 0, 1, 1, 3, 3)
-
-    decimal = limit
-    counter = 0
-
-    while counter != decimal + 1:
-        if 4 * q + r - t < n * t:
-            # yield digit
-            yield n
-            # insert period after first digit
-            if counter == 0:
-                yield "."
-            # end
-            if decimal == counter:
-                print("")
-                break
-            counter += 1
-            nr = 10 * (r - n * t)
-            n = ((10 * (3 * q + r)) // t) - 10 * n
-            q *= 10
-            r = nr
-        else:
-            nr = (2 * q + r) * l
-            nn = (q * (7 * k) + 2 + (r * l)) // (t * l)
-            q *= k
-            t *= l
-            l += 2
-            k += 1
-            n = nn
-            r = nr
-
-
-# definitely wrote this, however I did modify substantially
+# definitely wrote this
+# however I did modify substantially
 def getweather(temp = False, temp_high = False):
     # HTTP request
     response = get("https://api.openweathermap.org/data/2.5/weather?" + "q=" + weatherlocation + "&units=imperial" + "&appid=" + "9942f72d8fddd917dc980f5d4c6d8b1f")
@@ -136,7 +97,7 @@ def getweather(temp = False, temp_high = False):
         else:
             return f"{weatherlocation:-^32}\nTemperature: {temperature}°F\nHigh/Low: {maxtemp}/{mintemp}°F\nHumidity: {humidity}%\nPressure: {pressure}hPa\nWeather Report: {str(report[0]['description']).capitalize()}\n{'-' * 32}"
     else:
-        # incorrect city
+        # 
         if weatherlocation == "":
             return "No weather data!"
         else:
@@ -151,8 +112,8 @@ def getcity():
     }
     try:
         response = get(url, params=params)
-    except Exception as e:
-        print(f"[red]Error:[/red] {e}")
+    except:
+        print(f"Error in the HTTP request, Status Code: {response.status_code}")
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -162,25 +123,9 @@ def getcity():
         region = data["region"]
     return (f"{city}, {region}")
 
-
-# Wrapper function for calculating pi
-def cpi():
-    # Calls CalcPi with the given limit
-    pi_digits = calcPi(int(input("Enter the number of decimals to calculate to: ")))
-
-    i = 0
-
-    # Prints the output of calcPi generator function
-    # Inserts a newline after every 40th number
-    for d in pi_digits:
-        print(d, end="")
-        i += 1
-        if i == 40:
-            print("")
-            i = 0
-
 # format the date nicely
 def getdate():
+    # add ordinals
     nice_dateday = strftime("%#d")
     if nice_dateday[-1] == "1":
         nice_dateday +="st"
@@ -193,7 +138,7 @@ def getdate():
     nice_date = strftime(f"%A, %B {nice_dateday}, %Y")
     return nice_date
 
-# read name
+# read data from config 
 if os.path.exists(filename):
     name = readfile("name")
     weatherlocation = readfile("weather_location")
@@ -204,10 +149,10 @@ elif not args.portable:
 
 clearscreen()
 
-# ask for name
+# get user's info, unless porable
 # userinfo is created, the code should work if no one tampers with the file
 if name == "":
-    # don't write userinfo
+    # don't save info
     if args.portable:
         name = "Anonymous"
         print("[red]Settings will not be saved![/red]")
@@ -223,13 +168,11 @@ if name == "":
             if input("Would you like to autofill the weather location? (y/n)\n").lower() == "y" or "yes":
                 weatherlocation = getcity()
                 writetoline("weather_location", weatherlocation)
-            else:
-                pass
 
 
 clearscreen()
 
-# greet user
+# hl easter egg
 if random.randint(0, 10) == 0:
     print("Good morning and welcome to the Black Mesa Transit System.")
     print(f"The time is {gettime()}. Current topside temperature is {getweather(True)} degrees with an estimated high of {getweather(False, True)}.\nThe Black Mesa compound is maintained at a pleasant 68 degrees at all times.")
