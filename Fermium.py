@@ -1,36 +1,34 @@
+import configparser
 import os
 import platform
 import random
 from shutil import os
 from time import strftime, sleep
-import webbrowser
 from rich import print
 import keyboard
 import wikipedia
 from requests import get
 from getkey import getkey, keys
-from datetime import datetime
-import configparser
+import argparse
 
-(
-    name,
-    choice,
-    weatherlocation,
-    contentsofdir,
-    filename,
-    ip_address,
-    deleteafteruse,
-    config
-) = (
-    "",
-    "",
-    "",
-    os.listdir(os.getcwd()),
-    "userinfo.ini",
-    get("https://api.ipify.org").text, 
-    False, 
-    configparser.ConfigParser()
-)
+name = ""
+choice = ""
+weatherlocation = ""
+filename = "userinfo.ini"
+ip_address = get("https://api.ipify.org").text
+config = configparser.ConfigParser()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-a', '--noauto', action='store_true', help='turn off the autofill of certain data')
+parser.add_argument('-p', '--portable', action='store_true', help='don\'t store data')
+parser.add_argument('-d', '--delete', action='store_true', help='delete previous data before running')
+args = parser.parse_args()
+
+if args.delete:
+    try:
+        os.remove(filename)
+    except FileNotFoundError:
+        print("No userfile detected!")
 
 print("Loading, please wait...")
 options = [
@@ -50,7 +48,7 @@ if not os.name == "nt":
     del options[4]
 
 def writetoline(key, data_to_write):
-    if not deleteafteruse:
+    if not args.portable:
         config["Settings"][key] = data_to_write
         with open(filename, 'w') as configfile:
             config.write(configfile)
@@ -151,7 +149,10 @@ def getcity():
         "ip": ip_address,
         "key": "e872c03df48ba8d88ee8181e852599ba",
     }
-    response = get(url, params=params)
+    try:
+        response = get(url, params=params)
+    except Exception as e:
+        print(f"[red]Error:[/red] {e}")
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
@@ -180,13 +181,23 @@ def cpi():
 
 # format the date nicely
 def getdate():
-    return strftime("%A, %B %d, %Y")
+    nice_dateday = strftime("%#d")
+    if nice_dateday[-1] == "1":
+        nice_dateday +="st"
+    elif nice_dateday[-1] == "2":
+        nice_dateday +="nd"
+    elif nice_dateday[-1] == "3":
+        nice_dateday +="rd"
+    else:
+        nice_dateday +="th"
+    nice_date = strftime(f"%A, %B {nice_dateday}, %Y")
+    return nice_date
 
 # read name
 if os.path.exists(filename):
     name = readfile("name")
     weatherlocation = readfile("weather_location")
-else:
+elif not args.portable:
     config["Settings"] = {"name" : "", "weather_location" : ""}
     with open(filename, 'w') as configfile:
         config.write(configfile)
@@ -196,21 +207,25 @@ clearscreen()
 # ask for name
 # userinfo is created, the code should work if no one tampers with the file
 if name == "":
-    name = input("What's your name? (shred/incognito to not save any data)\n").capitalize()
     # don't write userinfo
-    if name == "Shred" or name == "Incognito":
-        deleteafteruse = True
+    if args.portable:
         name = "Anonymous"
         print("[red]Settings will not be saved![/red]")
-    elif len(name) > 50:
+    elif len(name) >= 75:
         print("[red]Name is unusually long, prodece with caution[/red]")
-    writetoline("name", name)
+    else:
+        name = input("What's your name? (running with -p flag does't save data)\n").capitalize()
+        writetoline("name", name)
+        if args.noauto == False:  
+            weatherlocation = getcity()
+            writetoline("weather_location", weatherlocation)
+        else:
+            if input("Would you like to autofill the weather location? (y/n)\n").lower() == "y" or "yes":
+                weatherlocation = getcity()
+                writetoline("weather_location", weatherlocation)
+            else:
+                pass
 
-if weatherlocation == "":
-    wchoice = input("Would you like to autofill the weather location? (y/n)\n").lower()
-    if wchoice == "y" or wchoice == "yes":
-        weatherlocation = getcity()
-        writetoline("weather_location", weatherlocation)
 
 clearscreen()
 
@@ -254,7 +269,7 @@ while True:
     # check the date
     elif choice == "2":
         # prevent against changing at midnight
-        print(strftime("%A, %B %d, %Y"))
+        print(getdate())
     # display weather
     elif choice == "3":
         if weatherlocation == "":
@@ -371,74 +386,10 @@ while True:
             clearscreen()
             print(f"Your city is {getcity()}.")
             sleep(3)
-        clearscreen()
-                
+        clearscreen()          
     # exit
     elif choice == "7":
         os._exit(0)
-
-    elif choice == "69":
-        print("[red]Developer mode activated![/red]")
-        clearscreen()
-        while choice.lower() != "exit" and choice.lower() != "devexit":
-            devops = [
-                "8. Clear the screen",
-                "10. List the contents of the current directory",
-                "12. Open a URL",
-                "14. Print your public IP address",
-                "15. Generate a random number",
-                "16. Calculate PI",
-            ]
-            print("\n".join(devops))
-            choice = input("Enter your choice: ")
-            clearscreen()
-            if choice == "8":
-                print("Clearing screen...")
-                clearscreen()
-
-            # list the contents of the current directory
-            elif choice == "10":
-                print("Contents of the current directory: \n")
-                for i in contentsofdir:
-                    print(i)
-                print("\n")
-
-            # ask the user what url they want to open
-            # somewhat broken, website detection is janky
-            elif choice == "12":
-                urlopen = input("What is the url you want to open? \n")
-                webbrowser.open_new("https://" + urlopen)
-                pos = urlopen.rfind(".")
-                if pos >= 0:
-                    urlopen = urlopen[:pos]
-                print(f"[green]Opened[/green] {urlopen} [green]in a new tab[/green]")
-                if "e621" in urlopen:
-                    print("You sly dog ;)")
-
-            # display IP
-            elif choice == "14":
-                print(f"Your IP address is {ip_address}.\n")
-
-            # random num
-            elif choice == "15":
-                firstbetween = int(input("What is the smallest number? \n"))
-                secondbetween = int(input("What is the largest number? \n"))
-                if firstbetween > secondbetween:
-                    print("[red]The first number must be [bold]smaller[/bold] than the second number.[/red]\n")
-                else:
-                    print(f"Your random number is {str(random.randint(firstbetween, secondbetween))} .\n")
-            # calculate pi to a specified amount
-            elif choice == "16":
-                start = datetime.now()
-                try:
-                    cpi()
-                    print("[green]Done![/green]")
-                except KeyboardInterrupt:
-                    print("[red]Canceled![/red]")
-                end = datetime.now()
-                # format the time difference nicely
-                time_difference = end - start
-                print(f"Time taken: {str(time_difference)}\n")
-
+        
     else:
         print("[red]Invalid choice.[/red]")
