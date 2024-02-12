@@ -97,7 +97,6 @@ def getweather(temp = False, temp_high = False):
         else:
             return f"{weatherlocation:-^32}\nTemperature: {temperature}°F\nHigh/Low: {maxtemp}/{mintemp}°F\nHumidity: {humidity}%\nPressure: {pressure}hPa\nWeather Report: {str(report[0]['description']).capitalize()}\n{'-' * 32}"
     else:
-        # 
         if weatherlocation == "":
             return "No weather data!"
         else:
@@ -115,9 +114,9 @@ def getcity():
     except:
         print(f"Error in the HTTP request, Status Code: {response.status_code}")
 
-    # Check if the request was successful (status code 200)
+    # check if the request was successful (status code 200)
     if response.status_code == 200:
-        # Parse the JSON response and extract the city field
+        # parse the JSON response and extract the city field
         data = response.json()
         city = data["city"]
         region = data["region"]
@@ -125,7 +124,7 @@ def getcity():
 
 # format the date nicely
 def getdate():
-    # add ordinals
+    # add date ordinals
     nice_dateday = strftime("%#d")
     if nice_dateday[-1] == "1":
         nice_dateday +="st"
@@ -149,17 +148,15 @@ elif not args.portable:
 
 clearscreen()
 
-# get user's info, unless porable
-# userinfo is created, the code should work if no one tampers with the file
+# get user's info, unless portable
+# !!!userinfo is created!!!
 if name == "":
-    # don't save info
+    # don't write to file
     if args.portable:
         name = "Anonymous"
         print("[red]Settings will not be saved![/red]")
-    elif len(name) >= 75:
-        print("[red]Name is unusually long, prodece with caution[/red]")
     else:
-        name = input("What's your name? (running with -p flag does't save data)\n").capitalize()
+        name = input("What's your name? (running with -p flag does't save data)\n").title()
         writetoline("name", name)
         if args.noauto == False:  
             weatherlocation = getcity()
@@ -169,10 +166,8 @@ if name == "":
                 weatherlocation = getcity()
                 writetoline("weather_location", weatherlocation)
 
-
 clearscreen()
 
-# hl easter egg
 if random.randint(0, 10) == 0:
     print("Good morning and welcome to the Black Mesa Transit System.")
     print(f"The time is {gettime()}. Current topside temperature is {getweather(True)} degrees with an estimated high of {getweather(False, True)}.\nThe Black Mesa compound is maintained at a pleasant 68 degrees at all times.")
@@ -209,9 +204,8 @@ while True:
                     clearscreen()
                     print(f"The time is {timeold} \nPress 'esc' to exit")
 
-    # check the date
+    # display the date
     elif choice == "2":
-        # prevent against changing at midnight
         print(getdate())
     # display weather
     elif choice == "3":
@@ -286,6 +280,7 @@ while True:
                     print(wikipedia.summary(searchterm, sentences=wikipediacount,))
                     print("\n")
                 except wikipedia.exceptions.DisambiguationError:
+                    # not specific enough 
                     print("[red]Try adding a type to your query.[/red]")
                 except Exception as e:
                     print(f"[red]Error:[/red] {e}")
@@ -304,7 +299,7 @@ while True:
                 print("[red]Invalid choice![/red]")
         
             
-    # settings
+    # user settings
     elif choice == "6":
         print("1. Change Weather Location \n2. Change Name \n3. Delete info \n4. Autofill weather location from IP \n5. Back")
         setchoice = input("What would you like to do?\n")
@@ -317,6 +312,7 @@ while True:
             name = input("What is your name? \n")
             writetoline("name", name)
         elif setchoice == "3":
+            # remove config
             try:
                 os.remove(filename)
                 print("[red]Deleting user info...[/red]")
