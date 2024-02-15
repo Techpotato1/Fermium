@@ -19,7 +19,7 @@ ip_address = get("https://api.ipify.org").text
 config = configparser.ConfigParser()
 
 # get cmd arguments 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser() 
 parser.add_argument('-a', '--noauto', action='store_true', help='turn off the autofill of certain data')
 parser.add_argument('-p', '--portable', action='store_true', help='don\'t store data')
 parser.add_argument('-d', '--delete', action='store_true', help='delete previous data before running')
@@ -97,7 +97,6 @@ def getweather(temp = False, temp_high = False):
         else:
             return f"{weatherlocation:-^32}\nTemperature: {temperature}°F\nHigh/Low: {maxtemp}/{mintemp}°F\nHumidity: {humidity}%\nPressure: {pressure}hPa\nWeather Report: {str(report[0]['description']).capitalize()}\n{'-' * 32}"
     else:
-        # 
         if weatherlocation == "":
             return "No weather data!"
         else:
