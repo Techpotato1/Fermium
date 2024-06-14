@@ -17,6 +17,7 @@ weatherlocation = ""
 filename = "userinfo.ini"
 ip_address = get("https://api.ipify.org").text
 config = configparser.ConfigParser()
+non_nt = False
 
 # get cmd arguments 
 parser = argparse.ArgumentParser() 
@@ -33,20 +34,22 @@ if args.delete:
 
 print("Loading, please wait...")
 options = [
-    "What would you like to do next?",
-    "1. Check the time",
-    "2. Check the date",
-    "3. Check the weather (not precise)",
-    "4. Clear temp files",
-    "5. Wikipedia",
-    "6. Settings",
-    "7. Exit",
+    "Check the time",
+    "Check the date",
+    "Check the weather (not precise)",
+    "Clear temp files",
+    "Wikipedia",
+    "Settings",
+    "Exit",
 ]
+
+
 
 # TODO: clear temp files in linux
 # remove windows only features
 if not os.name == "nt":
-    del options[4]
+    del options[3]
+    non_nt = True
 
 def writetoline(key, data_to_write):
     if not args.portable:
@@ -122,10 +125,11 @@ def getcity():
         region = data["region"]
     return (f"{city}, {region}")
 
-# format the date nicely
 def getdate():
     # add date ordinals
-    nice_dateday = strftime("%#d")
+    nice_dateday = strftime("%d")
+    if nice_dateday.startswith("0"):  # remove the leading zero
+        nice_dateday = nice_dateday[1:] 
     if nice_dateday[-1] == "1":
         nice_dateday +="st"
     elif nice_dateday[-1] == "2":
@@ -136,6 +140,7 @@ def getdate():
         nice_dateday +="th"
     nice_date = strftime(f"%A, %B {nice_dateday}, %Y")
     return nice_date
+
 
 # read data from config 
 if os.path.exists(filename):
@@ -174,16 +179,23 @@ if random.randint(0, 10) == 0:
     
 else:
     print(f"Hello, {name}!")
-    print(f"Today's date is {getdate()}")
-    print(f"The time is {gettime()}")
+    print(f"Today's date is {getdate()} and the time is {gettime()}")
 
 while True:
-    print("\n" + "\n".join(options))
-    choice = input("Enter your choice: ")
+    print("What would you like to do next?")
+    for index, item in enumerate(options, start=1):  # Start numbering at 1
+        print(f"{index}. {item}")
+    try:    
+        choice = int(input("Enter your choice: "))
+    except ValueError:
+        choice = 0
+    
+    if choice >= 4 and non_nt == True:
+        choice += 1
     clearscreen()
-
+    
     # check the time
-    if choice == "1": 
+    if choice == 1:
         timeold = ""
         if platform.system() == "Windows":
             while not keyboard.is_pressed("esc"):
@@ -205,10 +217,10 @@ while True:
                     print(f"The time is {timeold} \nPress 'esc' to exit")
 
     # display the date
-    elif choice == "2":
+    elif choice == 2:
         print(getdate())
     # display weather
-    elif choice == "3":
+    elif choice == 3:
         if weatherlocation == "":
             weatherlocation = input("What is your city? Ex: Sacramento, California \n")
             writetoline("weather_location", weatherlocation)
@@ -216,7 +228,8 @@ while True:
         else:
             print(getweather())
                 
-    elif choice == "4":
+    elif choice == 4:
+        # ONLY WORKS IN WINDOWS
         # specify the paths to the temporary folders
         win_temp_path = 'C:\\Windows\\Temp'
         user_temp_path = os.path.join(os.environ['LOCALAPPDATA'], 'Temp')
@@ -265,7 +278,7 @@ while True:
             clearscreen()
             
     # search wikipedia
-    elif choice == "5":
+    elif choice == 5:
         wikipediachoice = ""
         wikipediacount = 3
         while True:
@@ -300,7 +313,7 @@ while True:
         
             
     # user settings
-    elif choice == "6":
+    elif choice == 6:
         print("1. Change Weather Location \n2. Change Name \n3. Delete info \n4. Autofill weather location from IP \n5. Back")
         setchoice = input("What would you like to do?\n")
         if setchoice == "1":
@@ -327,7 +340,7 @@ while True:
             sleep(3)
         clearscreen()          
     # exit
-    elif choice == "7":
+    elif choice == 7:
         os._exit(0)
         
     else:
